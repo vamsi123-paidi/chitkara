@@ -1,0 +1,30 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+}
+p{
+    font-style: italic;
+    font-weight: 900;
+    font-family:'Times New Roman', Times, serif
+}
+
+.register{
+    border: 2px solid red;
+}
+.box{
+    border: 2px solid green ;
+    text-align: center;
+    padding: 20px 20px 20px 20px;
+    margin:20px 20px 20px 20px ;
+}
+.box1{
+    border: 2px solid green ;
+    text-align: center;
+    padding: 20px 20px 20px 20px;
+    margin:20px 20px 20px 20px ;
+    display: grid;
+    grid-template-columns: repeat(3,300px);
+
+}
