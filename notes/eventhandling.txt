@@ -1,0 +1,255 @@
+1️⃣ What is Event Handling?
+
+Event handling allows your JavaScript code to respond to user interactions:
+
+* Clicks
+* Key presses
+* Mouse movements
+* Form submissions
+* Page load/unload, etc.
+
+---
+
+2️⃣ Ways to Handle Events
+
+ a) Inline Event Handling
+
+Directly in HTML using an attribute.
+
+html
+<button onclick="alert('Button clicked!')">Click Me</button>
+
+
+---
+
+ b) Using HTML DOM Element Properties
+
+Assigning the event handler via JavaScript.
+
+html
+<button id="btn">Click</button>
+
+<script>
+document.getElementById("btn").onclick = function() {
+    alert("Button clicked!");
+};
+</script>
+
+
+---
+
+ c) Using `addEventListener()` (Recommended)
+
+Allows adding multiple handlers and removing them later.
+
+html
+<button id="btn2">Click</button>
+
+<script>
+document.getElementById("btn2").addEventListener("click", function() {
+    alert("Button clicked using addEventListener!");
+});
+</script>
+
+
+---
+
+3️⃣ Common Event Types
+
+* `click` – when clicked
+* `dblclick` – double click
+* `mouseover` / `mouseout` – mouse enters/leaves
+* `keydown` / `keyup` – key press
+* `submit` – form submission
+* `change` – input value changes
+* `load` – when page or resource loads
+* `resize` – window size changes
+* `scroll` – user scrolls
+
+---
+
+4️⃣ Event Object (`event`)
+
+The event handler receives an event object with details about the event:
+
+html
+<button id="btn3">Click</button>
+
+<script>
+document.getElementById("btn3").addEventListener("click", function(event) {
+    console.log(event.type);  // "click"
+    console.log(event.target); // the element clicked
+});
+</script>
+
+
+---
+
+5️⃣ Removing Event Listeners
+
+html
+<button id="btn4">Click to Remove Event</button>
+
+<script>
+function sayHello() {
+    alert("Hello!");
+}
+
+let btn = document.getElementById("btn4");
+btn.addEventListener("click", sayHello);
+
+// Remove event after 3 seconds
+setTimeout(() => {
+    btn.removeEventListener("click", sayHello);
+}, 3000);
+</script>
+
+
+---
+
+6️⃣ Event Propagation: Bubbling & Capturing
+
+Events propagate in two phases:
+
+* Capturing (top-down)
+* Bubbling (bottom-up, default)
+
+Example:
+
+html
+<div id="parent" style="padding: 30px; background: lightblue;">
+    Parent
+    <button id="child">Child</button>
+</div>
+
+<script>
+document.getElementById("parent").addEventListener("click", () => {
+    console.log("Parent clicked");
+});
+
+document.getElementById("child").addEventListener("click", () => {
+    console.log("Child clicked");
+});
+</script>
+
+
+Clicking Child will log:
+
+
+Child clicked
+Parent clicked
+
+
+---
+
+7️⃣ `stopPropagation()`
+
+To stop event bubbling:
+
+javascript
+document.getElementById("child").addEventListener("click", (event) => {
+    console.log("Child clicked");
+    event.stopPropagation();
+});
+
+
+Now, clicking Child will only log:
+
+
+Child clicked
+
+
+and not trigger the parent handler.
+
+---
+
+8️⃣ `preventDefault()`
+
+Prevents the default action of an element (e.g., preventing form submission or link navigation).
+
+html
+<a href="https://example.com" id="link">Go to Example</a>
+
+<script>
+document.getElementById("link").addEventListener("click", (event) => {
+    event.preventDefault();
+    alert("Link click prevented!");
+});
+</script>
+
+
+---
+
+9️⃣ Handling Keyboard Events
+
+html
+<input type="text" id="inputField" placeholder="Type here...">
+
+<script>
+document.getElementById("inputField").addEventListener("keydown", (event) => {
+    console.log("Key pressed: ", event.key);
+});
+</script>
+
+
+---
+
+10️⃣ Handling Form Submission
+
+html
+<form id="myForm">
+    <input type="text" placeholder="Your Name">
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+document.getElementById("myForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    alert("Form submitted!");
+});
+</script>
+
+
+---
+
+11️⃣ Event Delegation
+
+Attach a single event handler to a parent to handle events on multiple children dynamically.
+
+html
+<ul id="list">
+    <li>Item 1</li>
+    <li>Item 2</li>
+    <li>Item 3</li>
+</ul>
+
+<script>
+document.getElementById("list").addEventListener("click", function(event) {
+    if (event.target.tagName === "LI") {
+        alert(`You clicked: ${event.target.textContent}`);
+    }
+});
+</script>
+
+
+---
+
+Summary Table
+
+| Concept               | Usage Example                                           |
+| --------------------- | ------------------------------------------------------- |
+| Inline event handling | `<button onclick="...">`                                |
+| DOM property event    | `element.onclick = function(){}`                        |
+| `addEventListener`    | `element.addEventListener("click", handler)`            |
+| Event object          | `event.type`, `event.target`, etc.                      |
+| Remove event listener | `removeEventListener("click", handler)`                 |
+| Event propagation     | Bubbling & capturing phases                             |
+| `stopPropagation()`   | Stops event bubbling                                    |
+| `preventDefault()`    | Prevents default actions (form submit, link navigation) |
+| Keyboard events       | `keydown`, `keyup`                                      |
+| Form submission       | Handling `submit` event                                 |
+| Event delegation      | Parent handles child events dynamically                 |
+
+---
+
+If you would like practice mini-projects to apply these concepts (like a to-do list, live counter, or dynamic navigation highlight using event delegation), let me know to strengthen your practical understanding efficiently.

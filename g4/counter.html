@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p id="count">0</p>
+    <button id="b1">increment</button>
+    <button id="b2">decrement</button>
+    <button id="b3">restart</button>
+    <script>
+        let count =10;
+        let b1=document.getElementById("b1");
+        let b2=document.getElementById("b2");
+        let b3=document.getElementById("b3");
+        b1.onclick = function (){
+            ++count;
+            document.getElementById('count').innerHTML = count;
+        }
+          b2.onclick = function (){
+            --count;
+            document.getElementById('count').innerHTML = count;
+        }
+          b3.onclick = function (){
+            count=0;
+            document.getElementById('count').innerHTML = count;
+        }
+    </script>
+</body>
+</html>

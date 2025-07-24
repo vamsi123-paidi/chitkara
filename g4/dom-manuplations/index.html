@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      form {
+        border: 2px solid red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="heading">dom manuplations</h1>
+    <h1 class="heading">dom manuplations-second</h1>
+    <ul id="list">
+      <li>One</li>
+      <li>Two</li>
+      <li>Three</li>
+      <li>Four</li>
+    </ul>
+    <p id="text">static text</p>
+    <div id="root"></div>
+    <button id="btn">Sumbit</button>
+    <button id="btn1">Light mode</button>
+    <button id="btn2">Dark mode</button>
+    <button id="btn3">remove event</button>
+
+    <script>
+      let heading = document.querySelectorAll(".heading");
+      heading.forEach((index) => {
+        index.style.color = "green";
+      });
+      let list_item = document.getElementById("list");
+      let first_element = list_item.firstElementChild;
+      let last_element = list_item.lastElementChild;
+      first_element.style.color = "red";
+      last_element.style.color = "green";
+      let newText = document.getElementById("text");
+      newText.innerHTML = "<b>dynamic text</b>";
+      let parent = document.getElementById("root");
+      let child = document.createElement("div");
+      child.setAttribute("id", "head");
+      child.innerHTML = `<form>
+            <label for="email">Email:</label>
+            <input type="email">
+            <label for="password">Password</label>
+            <input type="password">
+            <button>submit</button>
+        </form>`;
+      parent.appendChild(child);
+      let btn = document.getElementById("btn");
+      btn.addEventListener("click", () => {
+        console.log("submitted data sucessful");
+      });
+      let btn1 = document.getElementById("btn1");
+      btn1.addEventListener("mouseover", function () {
+        document.body.style.backgroundColor = "white";
+      });
+      btn1.addEventListener("mouseout", function (e) {
+        document.body.style.backgroundColor = "black";
+        console.log(e.type);
+        console.log(e.target);
+      });
+      let btn2 = document.getElementById("btn2");
+      btn2.addEventListener("click", function () {
+        document.body.style.backgroundColor = "black";
+      });
+      function sayHello() {
+        alert("Hello!");
+      }
+      let btn3 = document.getElementById("btn3");
+      btn3.addEventListener("click", sayHello);
+      setTimeout(()=>{
+      btn3.removeEventListener("click", sayHello);
+      },6000)
+    </script>
+  </body>
+</html>

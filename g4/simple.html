@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="form">
+        <label>name(must need to fill!)</label><br>
+        <input type="text" id="name" required minlength="3"><br>
+        <label>email(must fill the email)</label><br>
+        <input type="email" id="email" required><br>
+        <label>age(must fill the number)</label><br>
+        <input type="number" id="age" required min="13" max="120"><br>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="output">
+
+    </div>
+
+    <script>
+        document.getElementById("form").addEventListener("submit",(event)=>{
+            event.preventDefault();//it prevent the reload defalut values
+            let name = document.getElementById("name").value
+            let email = document.getElementById("email").value
+            let age = document.getElementById("age").value
+            document.getElementById("output").innerHTML=`
+                <p>NAme :${name}</p>
+            `
+
+        })
+    
+    </script>
+</body>
+</html>

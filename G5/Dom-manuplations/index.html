@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1 class="heading">DOM manuplations</h1>
+    <h1 class="heading">DOM manuplations</h1>
+    <h2 id="textContent">heading</h2>
+    <div id="root"></div>
+    <button onclick="alert('button clicked through the inline')">Submit</button>
+    <button id="btn1">submit1</button>
+    <button id="btn2">submit2</button>
+    <button id="btn4">remove event</button>
+    <div id="parent" style="padding: 30px; background: lightblue">
+      Parent
+      <button id="child">Child</button>
+    </div>
+    <script>
+      let heading = document.querySelectorAll(".heading");
+      heading.forEach((item) => {
+        item.style.color = "red";
+        item.style.backgroundColor = "aqua";
+      });
+      let text = document.getElementById("textContent");
+      let addElement = document.getElementById("root");
+      let create = document.createElement("div");
+      create.setAttribute("id", "head");
+      create.innerHTML += `<form>
+  <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Email address</label>
+    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+  </div>
+  <div class="mb-3">
+    <label for="exampleInputPassword1" class="form-label">Password</label>
+    <input type="password" class="form-control" id="exampleInputPassword1">
+  </div>
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+    <label class="form-check-label" for="exampleCheck1">Check me out</label>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>`;
+      addElement.appendChild(create);
+
+      let btn1 = document.getElementById("btn1");
+      btn1.onclick = function () {
+        document.body.style.backgroundColor = "white";
+        console.log(event.target);
+      };
+      let btn2 = document.getElementById("btn2");
+      btn2.addEventListener("mouseover", () => {
+        document.body.style.backgroundColor = "black";
+        console.log(event.type);
+      });
+      let sayHello = () => {
+        alert("hello");
+      };
+      let btn = document.getElementById("btn4");
+      btn.addEventListener("click", sayHello);
+      setTimeout(() => {
+        btn.removeEventListener("click", sayHello);
+      }, 3000);
+
+      let parent = document.getElementById("parent")
+      parent.addEventListener("click",()=>{
+        console.log("parent clicked");
+
+      })
+
+      document.getElementById("child").addEventListener("click", () => {
+        console.log("Child clicked");
+      });
+    </script>
+  </body>
+</html>
