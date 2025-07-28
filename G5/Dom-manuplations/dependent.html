@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <label>Are you a student?</label>
+<select id="studentStatus" onchange="toggleStudentFields()">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select>
+
+<div id="studentFields" style="display:none">
+  <label>College Name:</label>
+  <input type="text" id="schoolName" required>
+  
+  <label>Student ID:</label>
+  <input type="text" id="studentId" required>
+</div>
+
+<script>
+  function toggleStudentFields() {
+    const status = document.getElementById('studentStatus').value;
+    const studentFields = document.getElementById('studentFields');
+    
+    if (status === 'yes') {
+      studentFields.style.display = 'block';
+    } else {
+      studentFields.style.display = 'none';
+    }
+  }
+</script>
+</body>
+</html>

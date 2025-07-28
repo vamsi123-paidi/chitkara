@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Show Input Values</title>
+</head>
+<body>
+  <form id="joinForm">
+    <label>Name (must fill!):</label>
+    <input type="text" id="nameInput" required minlength="3"><br><br>
+
+    <label>Email (must look like email!):</label>
+    <input type="email" id="emailInput" required><br><br>
+
+    <label>Age (must be number!):</label>
+    <input type="number" id="ageInput" min="13" max="120"><br><br>
+    <button type="submit">Join!</button>
+  </form>
+  <div id="output"></div>
+  <script>
+    document.getElementById("joinForm").addEventListener("submit", function(e) {
+      e.preventDefault(); // prevent form from reloading the page
+      const name = document.getElementById("nameInput").value;
+      const email = document.getElementById("emailInput").value;
+      const age = document.getElementById("ageInput").value;
+
+      document.getElementById("output").innerHTML = `
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Age:</strong> ${age}</p>
+      `;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="step1" class="form-step">
+        <label>Full Name:</label>
+        <input type="text" id="fullName">
+        <button onclick="nextStep(1)">Next</button>
+      </div>
+      
+      <div id="step2" class="form-step" style="display:none">
+        <label>Phone Number:</label>
+        <input type="tel" id="phone">
+        <button onclick="prevStep(2)">Back</button>
+        <button onclick="nextStep(2)">Next</button>
+      </div>
+      
+      <div id="step3" class="form-step" style="display:none">
+        <label>Address:</label>
+        <textarea id="address"></textarea>
+        <button onclick="prevStep(3)">Back</button>
+        <button type="submit">Submit</button>
+      </div>
+      
+      <script>
+        function nextStep(currentStep) {
+          let isValid = true;
+          
+          if (currentStep === 1) {
+            const name = document.getElementById('fullName').value;
+            if (name.length < 3) { 
+              alert("Name must be at least 3 characters");
+              isValid = false;
+            }
+          }
+          
+          if (currentStep === 2) {
+            const phone = document.getElementById('phone').value;
+            if (!/^\d{10}$/.test(phone)) {
+              alert("Enter a valid 10-digit phone number");
+              isValid = false;
+            }
+          }
+          
+          if (isValid) {
+            document.getElementById(`step${currentStep}`).style.display = 'none';
+            document.getElementById(`step${currentStep + 1}`).style.display = 'block';
+          }
+        }
+        
+        function prevStep(currentStep) {
+          document.getElementById(`step${currentStep}`).style.display = 'none';
+          document.getElementById(`step${currentStep - 1}`).style.display = 'block';
+        }
+      </script> 
+</body>
+</html>
+
+<!-- Match a 10-digit number (phone)
+
+const regex = /^\d{10}$/;
+^ – start of string
+
+\d – any digit (0–9)
+
+{10} – exactly 10 digits
+
+$ – end of string
+
+✔ Matches: "1234567890"
+✖ Doesn’t match: "123-456-7890" or "abc1234567" -->
