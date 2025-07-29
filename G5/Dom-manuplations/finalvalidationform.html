@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Form Validation</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background-color: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+      }
+      .form-container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+        padding: 30px;
+      }
+      .form-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .form-header h1 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .progress-bar {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        position: relative;
+      }
+      .progress-bar::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background-color: #e0e0e0;
+        z-index: 1;
+        transform: translateY(-50%);
+      }
+      .progress-step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #e0e0e0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #999;
+        font-weight: bold;
+        position: relative;
+        z-index: 2;
+      }
+      .progress-step.active {
+        background-color: #4caf50;
+        color: white;
+      }
+      .progress-step.completed {
+        background-color: #4caf50;
+        color: white;
+      }
+      .form-step {
+        display: none;
+      }
+      .form-step.active {
+        display: block;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #555;
+      }
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+      }
+      .form-group input:focus,
+      .form-group select:focus {
+        border-color: #4caf50;
+        outline: none;
+      }
+      .error-message {
+        color: #e74c3c;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+      }
+      .success-icon {
+  color: #4caf50;
+  margin-left: 5px;
+  display: none; /* Hide by default */
+  vertical-align: middle;
+}
+      .password-strength {
+        margin-top: 10px;
+      }
+      .strength-bar {
+        height: 5px;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        margin-top: 5px;
+        overflow: hidden;
+      }
+      .strength-fill {
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s, background-color 0.3s;
+      }
+      .strength-text {
+        font-size: 14px;
+        margin-top: 5px;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+      }
+      .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .btn-prev {
+        background-color: #f1f1f1;
+        color: #555;
+      }
+      .btn-next,
+      .btn-submit {
+        background-color: #4caf50;
+        color: white;
+      }
+      .btn-prev:hover {
+        background-color: #e0e0e0;
+      }
+      .btn-next:hover,
+      .btn-submit:hover {
+        background-color: #45a049;
+      }
+      .btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      .dependent-field {
+        display: none;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+      }
+      .dependent-field.active {
+        display: block;
+      }
+      .requirements-list {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+      }
+      .requirement {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+      .requirement-icon {
+        margin-right: 8px;
+        font-size: 16px;
+      }
+      .requirement.valid .requirement-icon {
+        color: #4caf50;
+      }
+      .requirement.invalid .requirement-icon {
+        color: #e74c3c;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Create Your Account</h1>
+        <p>Please fill in all required fields</p>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-step active" id="step-1-indicator">1</div>
+        <div class="progress-step" id="step-2-indicator">2</div>
+        <div class="progress-step" id="step-3-indicator">3</div>
+      </div>
+
+      <form id="multi-step-form">
+        <div class="form-step active" id="step-1">
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" required />
+            <i class="fas fa-check-circle success-icon"></i>
+            <div class="error-message" id="name-error">Error message</div>
+
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required />
+            <i class="fas fa-check-circle success-icon"></i>
+            <div class="error-message" id="email-error">
+              Please enter a valid email address
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" />
+            <i class="fas fa-check-circle success-icon"></i>
+            <div class="error-message" id="phone-error">
+              Please enter a valid phone number
+            </div>
+          </div>
+        </div>
+
+        <div class="form-step" id="step-2">
+          <div class="form-group">
+            <label for="account-type">Account Type *</label>
+            <select id="account-type" name="account-type" required>
+              <option value="">Select account type</option>
+              <option value="personal">Personal</option>
+              <option value="business">Business</option>
+            </select>
+            <i class="fas fa-check-circle success-icon"></i>
+            <div class="error-message" id="account-type-error">
+              Please select an account type
+            </div>
+          </div>
+
+          <div class="dependent-field" id="business-fields">
+            <div class="form-group">
+              <label for="company-name">Company Name *</label>
+              <input type="text" id="company-name" name="company-name" />
+              <i class="fas fa-check-circle success-icon"></i>
+              <div class="error-message" id="company-name-error">
+                Please enter your company name
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tax-id">Tax ID</label>
+              <input type="text" id="tax-id" name="tax-id" />
+              <i class="fas fa-check-circle success-icon"></i>
+              <div class="error-message" id="tax-id-error">
+                Please enter a valid tax ID
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="username">Username *</label>
+            <input type="text" id="username" name="username" required />
+            <i class="fas fa-check-circle success-icon"></i>
+            <div class="error-message" id="username-error">
+              Username must be 4-20 characters
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" required />
+            <i class="fas fa-check-circle success-icon"></i>
+            <div class="error-message" id="password-error">
+              Password doesn't meet requirements
+            </div>
+
+            <div class="password-strength">
+              <div class="strength-bar">
+                <div class="strength-fill" id="strength-fill"></div>
+              </div>
+              <div class="strength-text" id="strength-text">
+                Password strength: Very Weak
+              </div>
+            </div>
+
+            <div class="requirements-list">
+              <div class="requirement invalid" id="length-req">
+                <span class="requirement-icon">✖</span>
+                <span>At least 8 characters</span>
+              </div>
+              <div class="requirement invalid" id="uppercase-req">
+                <span class="requirement-icon">✖</span>
+                <span>At least 1 uppercase letter</span>
+              </div>
+              <div class="requirement invalid" id="lowercase-req">
+                <span class="requirement-icon">✖</span>
+                <span>At least 1 lowercase letter</span>
+              </div>
+              <div class="requirement invalid" id="number-req">
+                <span class="requirement-icon">✖</span>
+                <span>At least 1 number</span>
+              </div>
+              <div class="requirement invalid" id="special-req">
+                <span class="requirement-icon">✖</span>
+                <span>At least 1 special character</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password">Confirm Password *</label>
+            <input
+              type="password"
+              id="confirm-password"
+              name="confirm-password"
+              required
+            />
+            <i class="fas fa-check-circle success-icon"></i>
+            <div class="error-message" id="confirm-password-error">
+              Passwords don't match
+            </div>
+          </div>
+        </div>
+
+        <div class="form-step" id="step-3">
+          <div class="form-group">
+            <label for="newsletter">Subscribe to newsletter?</label>
+            <select id="newsletter" name="newsletter">
+              <option value="yes">Yes, please</option>
+              <option value="no">No, thanks</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="communication">Preferred Communication</label>
+            <select id="communication" name="communication">
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+              <option value="both">Both</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; align-items: center">
+              <input
+                type="checkbox"
+                id="terms"
+                name="terms"
+                style="width: auto; margin-right: 10px"
+              />
+              <label for="terms" style="margin-bottom: 0"
+                >I agree to the Terms & Conditions *</label
+              >
+            </div>
+            <div class="error-message" id="terms-error">
+              You must accept the terms
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; align-items: center">
+              <input
+                type="checkbox"
+                id="privacy"
+                name="privacy"
+                style="width: auto; margin-right: 10px"
+              />
+              <label for="privacy" style="margin-bottom: 0"
+                >I agree to the Privacy Policy *</label
+              >
+            </div>
+            <div class="error-message" id="privacy-error">
+              You must accept the privacy policy
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-prev" id="prev-btn" disabled>
+            Previous
+          </button>
+          <button type="button" class="btn btn-next" id="next-btn">Next</button>
+          <button
+            type="submit"
+            class="btn btn-submit"
+            id="submit-btn"
+            style="display: none"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const formSteps = document.querySelectorAll(".form-step");
+        const stepIndicators = document.querySelectorAll(".progress-step");
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const submitBtn = document.getElementById("submit-btn");
+        let currentStep = 1;
+        const totalSteps = formSteps.length;
+
+        updateButtons();
+        setupEventListeners();
+
+        function setupEventListeners() {
+          prevBtn.addEventListener("click", goToPreviousStep);
+          nextBtn.addEventListener("click", goToNextStep);
+          submitBtn.addEventListener("click", function (event) {
+            event.preventDefault(); // Prevents page refresh
+            submitForm(); // Your custom form submission logic
+          });
+          document
+            .getElementById("account-type")
+            .addEventListener("change", function () {
+              const businessFields = document.getElementById("business-fields");
+              if (this.value === "business") {
+                businessFields.classList.add("active");
+              } else {
+                businessFields.classList.remove("active");
+                document.getElementById("company-name-error").style.display =
+                  "none";
+                document.getElementById("tax-id-error").style.display = "none";
+              }
+            });
+
+          document
+            .getElementById("password")
+            .addEventListener("input", validatePassword);
+          document
+            .getElementById("confirm-password")
+            .addEventListener("input", validateConfirmPassword);
+
+          document
+            .getElementById("name")
+            .addEventListener("blur", validateName);
+          document
+            .getElementById("email")
+            .addEventListener("blur", validateEmail);
+          document
+            .getElementById("phone")
+            .addEventListener("blur", validatePhone);
+          document
+            .getElementById("username")
+            .addEventListener("blur", validateUsername);
+        }
+
+        function goToNextStep() {
+          if (validateStep(currentStep)) {
+            document
+              .getElementById(`step-${currentStep}`)
+              .classList.remove("active");
+            document
+              .getElementById(`step-${currentStep}-indicator`)
+              .classList.remove("active");
+
+            currentStep++;
+            document
+              .getElementById(`step-${currentStep}`)
+              .classList.add("active");
+            document
+              .getElementById(`step-${currentStep}-indicator`)
+              .classList.add("active");
+
+            document
+              .getElementById(`step-${currentStep - 1}-indicator`)
+              .classList.add("completed");
+
+            updateButtons();
+          }
+        }
+
+        function goToPreviousStep() {
+          document
+            .getElementById(`step-${currentStep}`)
+            .classList.remove("active");
+          document
+            .getElementById(`step-${currentStep}-indicator`)
+            .classList.remove("active");
+
+          currentStep--;
+          document
+            .getElementById(`step-${currentStep}`)
+            .classList.add("active");
+          document
+            .getElementById(`step-${currentStep}-indicator`)
+            .classList.add("active");
+
+          updateButtons();
+        }
+
+        function updateButtons() {
+          if (currentStep === 1) {
+            prevBtn.disabled = true;
+          } else {
+            prevBtn.disabled = false;
+          }
+
+          if (currentStep === totalSteps) {
+            nextBtn.style.display = "none";
+            submitBtn.style.display = "block";
+          } else {
+            nextBtn.style.display = "block";
+            submitBtn.style.display = "none";
+          }
+        }
+
+        function validateStep(step) {
+          let isValid = true;
+
+          switch (step) {
+            case 1:
+              if (!validateName()) isValid = false;
+              if (!validateEmail()) isValid = false;
+              if (!validatePhone()) isValid = false;
+              break;
+            case 2:
+              if (!validateAccountType()) isValid = false;
+
+              if (
+                document.getElementById("account-type").value === "business"
+              ) {
+                if (!validateCompanyName()) isValid = false;
+                if (!validateTaxId()) isValid = false;
+              }
+
+              if (!validateUsername()) isValid = false;
+              if (!validatePassword()) isValid = false;
+              if (!validateConfirmPassword()) isValid = false;
+              break;
+            case 3:
+              if (!validateTerms()) isValid = false;
+              if (!validatePrivacy()) isValid = false;
+              break;
+          }
+
+          return isValid;
+        }
+
+        function validateName() {
+          const name = document.getElementById("name").value.trim();
+          const errorElement = document.getElementById("name-error");
+          const successIcon = document.querySelector("#name + .success-icon");
+
+          if (name === "") {
+            showError(errorElement, successIcon, "Please enter your full name");
+            return false;
+          } else if (name.length < 3) {
+            showError(
+              errorElement,
+              successIcon,
+              "Name must be at least 3 characters"
+            );
+            return false;
+          } else {
+            showSuccess(errorElement, successIcon);
+            return true;
+          }
+        }
+
+        function validateEmail() {
+          const email = document.getElementById("email").value.trim();
+          const errorElement = document.getElementById("email-error");
+          const successIcon = document.querySelector("#email + .success-icon");
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+          if (email === "") {
+            showError(
+              errorElement,
+              successIcon,
+              "Please enter your email address"
+            );
+            return false;
+          } else if (!emailRegex.test(email)) {
+            showError(
+              errorElement,
+              successIcon,
+              "Please enter a valid email address"
+            );
+            return false;
+          } else {
+            showSuccess(errorElement, successIcon);
+            return true;
+          }
+        }
+
+        function validatePhone() {
+          const phone = document.getElementById("phone").value.trim();
+          const errorElement = document.getElementById("phone-error");
+          const successIcon = document.querySelector("#phone + .success-icon");
+
+          if (
+            phone !== "" &&
+            !/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{3,6}$/.test(
+              phone
+            )
+          ) {
+            showError(
+              errorElement,
+              successIcon,
+              "Please enter a valid phone number"
+            );
+            return false;
+          } else {
+            showSuccess(errorElement, successIcon);
+            return true;
+          }
+        }
+
+        function validateAccountType() {
+          const accountType = document.getElementById("account-type").value;
+          const errorElement = document.getElementById("account-type-error");
+          const successIcon = document.querySelector(
+            "#account-type + .success-icon"
+          );
+
+          if (accountType === "") {
+            showError(
+              errorElement,
+              successIcon,
+              "Please select an account type"
+            );
+            return false;
+          } else {
+            showSuccess(errorElement, successIcon);
+            return true;
+          }
+        }
+
+        function validateCompanyName() {
+          const companyName = document
+            .getElementById("company-name")
+            .value.trim();
+          const errorElement = document.getElementById("company-name-error");
+          const successIcon = document.querySelector(
+            "#company-name + .success-icon"
+          );
+
+          if (companyName === "") {
+            showError(
+              errorElement,
+              successIcon,
+              "Please enter your company name"
+            );
+            return false;
+          } else {
+            showSuccess(errorElement, successIcon);
+            return true;
+          }
+        }
+
+        function validateTaxId() {
+          const taxId = document.getElementById("tax-id").value.trim();
+          const errorElement = document.getElementById("tax-id-error");
+          const successIcon = document.querySelector("#tax-id + .success-icon");
+          if (taxId !== "" && !/^[0-9A-Za-z-]{8,20}$/.test(taxId)) {
+            showError(errorElement, successIcon, "Please enter a valid tax ID");
+            return false;
+          } else {
+            showSuccess(errorElement, successIcon);
+            return true;
+          }
+        }
+
+        function validateUsername() {
+          const username = document.getElementById("username").value.trim();
+          const errorElement = document.getElementById("username-error");
+          const successIcon = document.querySelector(
+            "#username + .success-icon"
+          );
+
+          if (username === "") {
+            showError(errorElement, successIcon, "Please enter a username");
+            return false;
+          } else if (username.length < 4 || username.length > 20) {
+            showError(
+              errorElement,
+              successIcon,
+              "Username must be 4-20 characters"
+            );
+            return false;
+          } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            showError(
+              errorElement,
+              successIcon,
+              "Username can only contain letters, numbers and underscores"
+            );
+            return false;
+          } else {
+            showSuccess(errorElement, successIcon);
+            return true;
+          }
+        }
+
+        function validatePassword() {
+          const password = document.getElementById("password").value;
+          const errorElement = document.getElementById("password-error");
+          const successIcon = document.querySelector(
+            "#password + .success-icon"
+          );
+
+          const hasMinLength = password.length >= 8;
+          const hasUpperCase = /[A-Z]/.test(password);
+          const hasLowerCase = /[a-z]/.test(password);
+          const hasNumber = /[0-9]/.test(password);
+          const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+
+          updateRequirement("length-req", hasMinLength);
+          updateRequirement("uppercase-req", hasUpperCase);
+          updateRequirement("lowercase-req", hasLowerCase);
+          updateRequirement("number-req", hasNumber);
+          updateRequirement("special-req", hasSpecialChar);
+
+          const strength = calculatePasswordStrength(password);
+          updatePasswordStrength(strength);
+
+          if (password === "") {
+            showError(errorElement, successIcon, "Please enter a password");
+            return false;
+          } else if (
+            !hasMinLength ||
+            !hasUpperCase ||
+            !hasLowerCase ||
+            !hasNumber ||
+            !hasSpecialChar
+          ) {
+            showError(
+              errorElement,
+              successIcon,
+              "Password doesn't meet requirements"
+            );
+            return false;
+          } else {
+            showSuccess(errorElement, successIcon);
+            return true;
+          }
+        }
+
+        function calculatePasswordStrength(password) {
+          let strength = 0;
+
+          if (password.length > 0) strength += 10;
+          if (password.length >= 8) strength += 10;
+          if (password.length >= 12) strength += 10;
+
+          if (/[a-z]/.test(password)) strength += 10; // lowercase
+          if (/[A-Z]/.test(password)) strength += 10; // uppercase
+          if (/[0-9]/.test(password)) strength += 10; // numbers
+          if (/[^A-Za-z0-9]/.test(password)) strength += 10; // special chars
+          if (/([^A-Za-z0-9\s]){2,}/.test(password)) strength += 10; // multiple special chars
+
+          if (/([a-zA-Z])\1/.test(password)) strength -= 5; // penalize repeated chars
+          if (/(\w)\1{2,}/.test(password)) strength -= 10; // penalize sequences (aaa, 111)
+          if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(password))
+            strength -= 5;
+
+          return Math.max(0, Math.min(100, strength));
+        }
+
+        function updatePasswordStrength(strength) {
+          const strengthFill = document.getElementById("strength-fill");
+          const strengthText = document.getElementById("strength-text");
+
+          strengthFill.style.width = `${strength}%`;
+
+          if (strength < 20) {
+            strengthFill.style.backgroundColor = "#e74c3c";
+            strengthText.textContent = "Password strength: Very Weak";
+            strengthText.style.color = "#e74c3c";
+          } else if (strength < 40) {
+            strengthFill.style.backgroundColor = "#e67e22";
+            strengthText.textContent = "Password strength: Weak";
+            strengthText.style.color = "#e67e22";
+          } else if (strength < 60) {
+            strengthFill.style.backgroundColor = "#f1c40f";
+            strengthText.textContent = "Password strength: Moderate";
+            strengthText.style.color = "#f1c40f";
+          } else if (strength < 80) {
+            strengthFill.style.backgroundColor = "#2ecc71";
+            strengthText.textContent = "Password strength: Strong";
+            strengthText.style.color = "#2ecc71";
+          } else {
+            strengthFill.style.backgroundColor = "#27ae60";
+            strengthText.textContent = "Password strength: Very Strong";
+            strengthText.style.color = "#27ae60";
+          }
+        }
+
+        function validateConfirmPassword() {
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirm-password").value;
+          const errorElement = document.getElementById(
+            "confirm-password-error"
+          );
+          const successIcon = document.querySelector(
+            "#confirm-password + .success-icon"
+          );
+
+          if (confirmPassword === "") {
+            showError(
+              errorElement,
+              successIcon,
+              "Please confirm your password"
+            );
+            return false;
+          } else if (password !== confirmPassword) {
+            showError(errorElement, successIcon, "Passwords don't match");
+            return false;
+          } else {
+            showSuccess(errorElement, successIcon);
+            return true;
+          }
+        }
+
+        function validateTerms() {
+          const termsChecked = document.getElementById("terms").checked;
+          const errorElement = document.getElementById("terms-error");
+
+          if (!termsChecked) {
+            errorElement.style.display = "block";
+            return false;
+          } else {
+            errorElement.style.display = "none";
+            return true;
+          }
+        }
+
+        function validatePrivacy() {
+          const privacyChecked = document.getElementById("privacy").checked;
+          const errorElement = document.getElementById("privacy-error");
+
+          if (!privacyChecked) {
+            errorElement.style.display = "block";
+            return false;
+          } else {
+            errorElement.style.display = "none";
+            return true;
+          }
+        }
+
+        function showError(errorElement, successIcon, message) {
+  if (errorElement) {
+    errorElement.textContent = message;
+    errorElement.style.display = "block";
+  }
+  if (successIcon) {
+    successIcon.style.display = "none";
+    successIcon.style.visibility = "hidden"; // Double ensure it's hidden
+  }
+}
+
+function showSuccess(errorElement, successIcon, message) {
+  if (errorElement) {
+    errorElement.style.display = "none";
+  }
+  if (successIcon) {
+    successIcon.style.display = "inline";
+    successIcon.style.visibility = "visible";
+  }
+}
+
+        function updateRequirement(id, isValid) {
+          const element = document.getElementById(id);
+          if (isValid) {
+            element.classList.remove("invalid");
+            element.classList.add("valid");
+          } else {
+            element.classList.remove("valid");
+            element.classList.add("invalid");
+          }
+        }
+
+        function submitForm() {
+          const termsValid = validateTerms();
+          const privacyValid = validatePrivacy();
+
+          const otherFieldsValid = validateStep(currentStep);
+
+          if (termsValid && privacyValid && otherFieldsValid) {
+            alert("Form submitted successfully!");
+          } else {
+            alert("Please agree to the terms and privacy policy.");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
