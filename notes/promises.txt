@@ -1,0 +1,718 @@
+What is a Promise?
+
+A Promise is a JavaScript object that represents the eventual completion (or failure) of an asynchronous operation.
+
+It has three states:
+1. Pending – initial state, neither fulfilled nor rejected.
+2. Fulfilled – operation completed successfully.
+3. Rejected – operation failed.
+
+Basic Syntax of a Promise
+
+const promise = new Promise((resolve, reject) => {
+  // async task
+  if (true) {
+    resolve("Success message");
+  } else {
+    reject("Error message");
+  }
+});
+
+const checkAge = new Promise((resolve, reject) => {
+  const age = 20;
+  
+  if (age >= 18) {
+    resolve("Access granted"); // Success
+  } else {
+    reject("Access denied"); // Error
+  }
+});
+
+// Handling the promise
+checkAge
+  .then((message) => {
+    console.log(message); // Runs if resolved
+  })
+  .catch((error) => {
+    console.error(error); // Runs if rejected
+  });
+
+Example 1: A Simple Promise
+
+const myPromise = new Promise((resolve, reject) => {
+  let value = 5;
+  if (value > 3) {
+    resolve("Value is greater than 3 ✅");
+  } else {
+    reject("Value is too small ❌");
+  }
+});
+
+myPromise
+  .then((message) => console.log("Resolved:", message))
+  .catch((error) => console.log("Rejected:", error));
+
+
+Example 2: Simulating API Delay
+
+function fetchData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const success = true;
+      if (success) {
+        resolve("Data fetched successfully 📦");
+      } else {
+        reject("Failed to fetch data ❌");
+      }
+    }, 2000);
+  });
+}
+
+fetchData()
+  .then((data) => console.log(data))
+  .catch((err) => console.log(err));
+
+
+Chaining Promises
+
+function step1() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Step 1 done");
+      resolve();
+    }, 1000);
+  });
+}
+
+function step2() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Step 2 done");
+      resolve();
+    }, 1000);
+  });
+}
+
+step1()
+  .then(() => step2().then(()=>step3().then(()=>step4())))
+  .then(() => console.log("All steps completed ✅"));
+
+Why Use Promises?
+
+- Better than nested callbacks (callback hell)
+- Easier error handling with `.catch()`
+- Can be used with `async/await` for cleaner syntax
+
+callback hell Example recreation using Promises
+function waitAndLog(message, delay) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(message);
+      resolve();
+    }, delay);
+  });
+}
+console.log("Start");
+waitAndLog("1st step done", 1000)
+  .then(() => waitAndLog("2nd step done", 1000))
+  .then(() => waitAndLog("3rd step done", 1000))
+  .then(() => waitAndLog("4th step done", 1000));
+
+// 1. Validate order structure
+function validateOrder(order) {
+  return new Promise((resolve, reject) => {
+    if (!order.customerId) {
+      reject(new Error('Customer ID is required'));
+    } else if (!order.items || order.items.length === 0) {
+      reject(new Error('Order must contain items'));
+    } else {
+      console.log('✅ Order validated');
+      resolve(order);
+    }
+  });
+}
+
+// 2. Check inventory availability
+function checkInventory(order) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      console.log('📦 Inventory checked');
+      order.inventoryVerified = true;
+      resolve(order);
+    }, 800);
+  });
+}
+
+// 3. Process payment
+function processPayment(order) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const paymentSuccess = Math.random() > 0.2; // 80% success rate
+      if (paymentSuccess) {
+        console.log('💳 Payment processed');
+        order.paymentStatus = 'completed';
+        resolve(order);
+      } else {
+        reject(new Error('Payment declined'));
+      }
+    }, 1200);
+  });
+}
+
+// Execute the pipeline
+validateOrder({
+  customerId: 'cust789',
+  items: [{ id: 'prod456', qty: 1 }]
+})
+.then(checkInventory)
+.then(processPayment)
+.then(order => {
+  console.log('🎉 Order completed:', order);
+})
+.catch(err => {
+  console.error('❌ Order failed:', err.message);
+});
+
+Handling Multiple Orders (Promise.all)
+Explanation: Shows how to process multiple orders concurrently and wait for all to complete.
+function processSingleOrder(orderId) {
+  return new Promise(resolve => {
+    const processTime = 500 + Math.random()+2000;
+    setTimeout(() => {
+      resolve({
+        orderId,
+        status: 'processed',
+        processTime: Math.round(processTime)
+      });
+    }, processTime);
+  });
+}
+
+const orderBatch = ['order101', 'order102', 'order103', 'order104'];
+
+// Process all orders in parallel
+Promise.all(orderBatch.map(processSingleOrder))
+  .then(results => {
+    console.log('All orders processed:');
+    console.table(results);
+    const totalTime = results.reduce((sum, order) => sum + order.processTime, 0);
+    console.log(`Total processing time: ${totalTime}ms`);
+  })
+  .catch(error => {
+    console.error('Batch processing failed:', error);
+  });
+
+
+Examples based on microtask and macrotasks
+
+ ✅ Example 1
+
+console.log('A');
+setTimeout(() => {
+  console.log('B');
+}, 0);
+Promise.resolve().then(() => {
+  console.log('C');
+});
+console.log('D');
+
+
+Output:
+
+
+A
+D
+C
+B
+
+
+
+ ✅ Example 2
+
+console.log(1);
+setTimeout(() => {
+  console.log(2);
+}, 0);
+Promise.resolve().then(() => {
+  console.log(3);
+});
+console.log(4);
+
+
+Output:
+
+
+1
+4
+3
+2
+
+
+
+ ✅ Example 3
+
+Promise.resolve().then(() => {
+  console.log('First');
+});
+console.log('Second');
+setTimeout(() => {
+  console.log('Third');
+}, 0);
+console.log('Fourth');
+
+
+Output:
+
+
+Second
+Fourth
+First
+Third
+
+
+
+ ✅ Example 4
+
+setTimeout(() => {
+  console.log('setTimeout');
+}, 0);
+Promise.resolve().then(() => {
+  console.log('promise');
+});
+queueMicrotask(() => {
+  console.log('microtask');
+});
+console.log('sync');
+
+
+Output:
+
+
+sync
+promise
+microtask
+setTimeout
+
+
+> 💡 `Promise.then` and `queueMicrotask` are both microtasks, executed in order after sync code.
+
+
+ ✅ Example 5
+
+console.log('one');
+setTimeout(() => {
+  console.log('two');
+}, 0);
+Promise.resolve().then(() => {
+  console.log('three');
+}).then(() => {
+  console.log('four');
+});
+console.log('five');
+
+
+Output:
+
+
+one
+five
+three
+four
+two
+
+
+
+ ✅ Example 6
+
+setTimeout(() => {
+  console.log('A');
+}, 0);
+setTimeout(() => {
+  console.log('B');
+}, 0);
+Promise.resolve().then(() => {
+  console.log('C');
+});
+Promise.resolve().then(() => {
+  console.log('D');
+});
+
+
+Output:
+
+
+C
+D
+A
+B
+
+
+
+ ✅ Example 7
+
+Promise.resolve().then(() => {
+  console.log('Promise 1');
+  return Promise.resolve('Inner');
+}).then((val) => {
+  console.log(val);
+});
+console.log('Sync');
+
+Output:
+
+
+Sync
+Promise 1
+Inner
+
+
+
+ ✅ Example 8
+
+setTimeout(() => {
+  console.log('timeout 1');
+}, 0);
+Promise.resolve().then(() => {
+  console.log('promise 1');
+});
+setTimeout(() => {
+  console.log('timeout 2');
+}, 0);
+Promise.resolve().then(() => {
+  console.log('promise 2');
+});
+
+
+Output:
+
+
+promise 1
+promise 2
+timeout 1
+timeout 2
+
+
+
+ ✅ Example 9
+
+console.log('Start');
+
+queueMicrotask(() => {
+  console.log('Microtask 1');
+});
+Promise.resolve().then(() => {
+  console.log('Promise then');
+});
+console.log('End');
+
+
+Output:
+
+
+Start
+End
+Microtask 1
+Promise then
+
+
+
+ ✅ Example 10
+
+console.log('Start');
+setTimeout(() => {
+  console.log('Timeout');
+}, 0);
+Promise.resolve().then(() => {
+  console.log('Promise');
+});
+queueMicrotask(() => {
+  console.log('Microtask');
+});
+console.log('End');
+
+
+Output:
+
+
+Start
+End
+Promise
+Microtask
+Timeout
+
+
+
+🔥 Example 11 – Nested Promises & Microtask inside `then`
+
+console.log('1');
+
+Promise.resolve().then(() => {
+  console.log('2');
+  queueMicrotask(() => {
+    console.log('3');
+  });
+  return Promise.resolve();
+}).then(() => {
+  console.log('4');
+});
+
+console.log('5');
+
+
+ ✅ Output:
+
+
+1
+5
+2
+3
+4
+
+
+ 🧠 Why?
+
+ `1`, `5` → sync
+ `2` → first microtask
+ `queueMicrotask(...)` is scheduled during `2`, runs after
+ `4` → chained `.then()`
+ `3` → finally, `queueMicrotask`
+
+
+
+🔥 Example 12 – Microtask inside a Macrotask
+
+console.log('A');
+setTimeout(() => {
+  console.log('B');
+  queueMicrotask(() => {
+    console.log('C');
+  });
+  Promise.resolve().then(() => {
+    console.log('D');
+  });
+  console.log('E');
+}, 0);
+console.log('F');
+
+
+ ✅ Output:
+
+
+A
+F
+B
+E
+D
+C
+
+
+ 🧠 Why?
+
+ `A`, `F` → sync
+ `setTimeout(...)` callback starts → logs `B`, `E`
+ Inside that callback:
+
+   `.then(...)` & `queueMicrotask()` go into microtask queue
+ `D`, `C` → microtasks from within macrotask
+
+
+
+🔥 Example 13 – Mixed chaining & nested microtasks
+
+console.log('start');
+Promise.resolve().then(() => {
+  console.log('promise 1');
+  queueMicrotask(() => {
+    console.log('microtask 1');
+  });
+  return Promise.resolve('inner');
+}).then((val) => {
+  console.log(val);
+  queueMicrotask(() => {
+    console.log('microtask 2');
+  });
+});
+console.log('end');
+
+
+ ✅ Output:
+
+
+start
+end
+promise 1
+inner
+microtask 1
+microtask 2
+
+
+
+
+🔥 Example 14 – Recursive microtasks
+
+console.log('X');
+queueMicrotask(() => {
+  console.log('Y');
+  queueMicrotask(() => {
+    console.log('Z');
+  });
+});
+console.log('W');
+
+
+ ✅ Output:
+
+
+X
+W
+Y
+Z
+
+
+ 🧠 Explanation:
+
+ Microtasks can enqueue other microtasks, but they won't interrupt current ones — they’ll run in the next microtask cycle.
+
+
+
+🔥 Example 15 – Macrotask enqueues microtask which enqueues another microtask
+
+setTimeout(() => {
+  console.log('1');
+  queueMicrotask(() => {
+    console.log('2');
+    queueMicrotask(() => {
+      console.log('3');
+    });
+  });
+  console.log('4');
+}, 0);
+console.log('5');
+
+
+ ✅ Output:
+
+
+5
+1
+4
+2
+3
+
+
+
+
+🔥 Example 16 – Promise inside microtask
+
+queueMicrotask(() => {
+  console.log('A');
+
+  Promise.resolve().then(() => {
+    console.log('B');
+  });
+
+  console.log('C');
+});
+
+console.log('D');
+
+
+ ✅ Output:
+
+
+D
+A
+C
+B
+
+
+
+
+🔥 Example 17 – Microtask chain explosion
+
+console.log('start');
+
+Promise.resolve().then(() => {
+  console.log('1');
+  return Promise.resolve().then(() => {
+    console.log('2');
+  });
+}).then(() => {
+  console.log('3');
+});
+
+console.log('end');
+
+
+ ✅ Output:
+
+
+start
+end
+1
+2
+3
+
+
+
+
+🔥 Example 18 – Microtask > Macrotask even when deeply nested
+
+setTimeout(() => {
+  console.log('T1');
+}, 0);
+Promise.resolve().then(() => {
+  console.log('P1');
+  setTimeout(() => {
+    console.log('T2');
+  }, 0);
+  return Promise.resolve().then(() => {
+    console.log('P2');
+  });
+}).then(() => {
+  console.log('P3');
+});
+console.log('S');
+
+
+ ✅ Output:
+
+
+S
+P1
+P2
+P3
+T1
+T2
+
+
+
+
+🔥 Example 19 – `queueMicrotask` inside `.then` vs direct
+
+Promise.resolve().then(() => {
+  console.log('A');
+  queueMicrotask(() => {
+    console.log('B');
+  });
+});
+queueMicrotask(() => {
+  console.log('C');
+});
+console.log('D');
+
+
+ ✅ Output:
+
+
+D
+A
+C
+B
+
+
+
+
+
+
+

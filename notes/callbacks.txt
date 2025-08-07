@@ -1,0 +1,126 @@
+What is a Callback Function in JavaScript?
+
+A callback is a function passed as an argument to another function, and it’s called (“called back”) after the completion of that function.
+
+Why Use Callbacks?
+
+- To handle asynchronous operations (like API calls, file reading, timeouts).
+- To allow custom logic to be executed after something else.
+- To separate concerns and make functions reusable.
+
+Basic Syntax Example
+
+
+function greet(name, callback) {
+  console.log("Hi " + name);
+  callback(); // Call the passed function
+}
+function sayBye() {
+  console.log("Bye!");
+}
+greet("John", sayBye);
+
+// Output:
+// Hi John
+// Bye!
+
+Callback with Anonymous Function
+
+function processUser(name, callback) {
+  console.log("Processing user:", name);
+  callback(name);
+}
+
+processUser("Alice", function(userName) {
+  console.log("Welcome, " + userName);
+});
+
+
+Callback in Asynchronous Code (e.g., `setTimeout`)
+
+console.log("Start");
+
+setTimeout(function () {
+  console.log("Callback after 2 seconds");
+}, 2000);
+
+console.log("End");
+
+// Output:
+// Start
+// End
+// Callback after 2 seconds
+
+Array Methods Using Callbacks
+
+const numbers = [1, 2, 3, 4];
+
+const doubled = numbers.map(function(num) {
+  return num * 2;
+});
+
+console.log(doubled); // [2, 4, 6, 8]
+
+What is Callback Hell?
+
+Callback Hell (also known as the "Pyramid of Doom") happens when multiple nested callbacks are used, making code:
+
+- Hard to read 😖  
+- Hard to maintain 😵  
+- Difficult to debug 🐞  
+
+Example of Callback Hell
+
+console.log("Start");
+setTimeout(() => {
+  console.log("1st step done");
+  setTimeout(() => {
+    console.log("2nd step done");
+    setTimeout(() => {
+      console.log("3rd step done");
+      setTimeout(() => {
+        console.log("4th step done");
+      }, 1000);
+    }, 0);
+  }, 1000);
+}, 1000);
+
+// Output:
+// Start
+// (after 1s) 1st step done
+// (after 2s) 2nd step done
+// (after 3s) 3rd step done
+// (after 4s) 4th step done
+
+
+Why It's a Problem
+
+- Readability breaks due to too many nested levels.
+- Hard to handle errors at each level.
+- Logic becomes tightly coupled, reducing reusability.
+
+How to Avoid Callback Hell
+
+You can use:
+- Named functions to flatten structure
+- Promises
+- Async/Await
+
+Rewritten with Named Functions
+function step1() {
+  console.log("1st step done");
+  setTimeout(step2, 1000);
+}
+function step2() {
+  console.log("2nd step done");
+  setTimeout(step3, 1000);
+}
+function step3() {
+  console.log("3rd step done");
+  setTimeout(step4, 1000);
+}
+function step4() {
+  console.log("4th step done");
+}
+console.log("Start");
+setTimeout(step1, 1000);
