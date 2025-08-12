@@ -7,7 +7,7 @@ console.log(![])
 console.log(!!{})
 
 
-let nums = [1,2,3,4]
+let nums = [1,2,,4]
 delete nums[2]
 console.log(nums.length)
 
@@ -17,7 +17,7 @@ console.log(ARR)
 
 x=10;
 console.log(x);
-var x
+let x
 
 let F="8";
 let A =1;
