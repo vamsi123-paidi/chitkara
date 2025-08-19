@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      fetch("https://jsonplaceholder.typicode.com/nonExisting")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => console.log(data))
+        .catch((error) => {
+          console.error("Fetch error:", error);
+          // Show user-friendly message
+          alert("Failed to load data. Please try again later.");
+        });
+    </script>
+  </body>
+</html>

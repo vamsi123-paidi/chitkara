@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Data Fetcher</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .user-container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .user-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        
+        .user-name {
+            font-size: 24px;
+            margin: 0;
+            color: #2c3e50;
+        }
+        
+        .user-username {
+            color: #7f8c8d;
+            margin: 5px 0;
+            font-style: italic;
+        }
+        
+        .user-contact {
+            margin-top: 15px;
+        }
+        
+        .user-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .detail-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .detail-card h3 {
+            margin-top: 0;
+            color: #3498db;
+            font-size: 16px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: #7f8c8d;
+            padding: 20px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 60px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Data Fetcher</h1>
+    
+    <div class="controls">
+        <input type="number" id="userIdInput" value="1" min="1" max="10">
+        <button id="fetchButton">Fetch User</button>
+        <button id="randomButton">Random User</button>
+    </div>
+    
+    <div id="loading" class="loading" style="display: none;">Loading user data...</div>
+    <div id="error" class="error" style="display: none;"></div>
+    <div id="userContainer" class="user-container" style="display: none;"></div>
+    
+    <script>
+        const userIdInput = document.getElementById('userIdInput');
+        const fetchButton = document.getElementById('fetchButton');
+        const randomButton = document.getElementById('randomButton');
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error');
+        const userContainer = document.getElementById('userContainer');
+        
+        fetchButton.addEventListener('click', () => {
+            const userId = userIdInput.value;
+            if (userId && userId >= 1 && userId <= 10) {
+                fetchAndDisplayUser(userId);
+            } else {
+                showError('Please enter a valid user ID (1-10)');
+            }
+        });
+        
+        randomButton.addEventListener('click', () => {
+            const randomUserId = Math.floor(Math.random() * 10) + 1;
+            userIdInput.value = randomUserId;
+            fetchAndDisplayUser(randomUserId);
+        });
+        
+        fetchAndDisplayUser(userIdInput.value);
+        
+        async function fetchUserData(userId) {
+            try {
+                loadingElement.style.display = 'block';
+                userContainer.style.display = 'none';
+                errorElement.style.display = 'none';
+                
+                const response = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const user = await response.json();
+                return user;
+            } catch (error) {
+                console.error('Error fetching user:', error);
+                throw error;
+            } finally {
+                loadingElement.style.display = 'none';
+            }
+        }
+        
+        async function fetchAndDisplayUser(userId) {
+            try {
+                const user = await fetchUserData(userId);
+                displayUserData(user);
+            } catch (error) {
+                showError(error.message || 'Failed to fetch user data');
+            }
+        }
+        
+        function displayUserData(user) {
+            if (!user) {
+                showError('No user data received');
+                return;
+            }
+            
+            // Get first letter for avatar
+            const firstLetter = user.name.charAt(0).toUpperCase();
+            
+            // Create address string
+            const address = `${user.address.street}, ${user.address.suite}, ${user.address.city}, ${user.address.zipcode}`;
+            
+            // Create company string
+            const company = `${user.company.name} - "${user.company.catchPhrase}"`;
+            
+            // Update the DOM
+            userContainer.innerHTML = `
+                <div class="user-header">
+                    <div class="user-avatar">${firstLetter}</div>
+                    <div>
+                        <h2 class="user-name">${user.name}</h2>
+                        <p class="user-username">@${user.username}</p>
+                        <p class="user-contact">
+                            <a href="mailto:${user.email}">${user.email}</a> | 
+                            <a href="tel:${user.phone}">${user.phone}</a>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="user-details">
+                    <div class="detail-card">
+                        <h3>Address</h3>
+                        <p>${address}</p>
+                        <p><strong>Geo:</strong> ${user.address.geo.lat}, ${user.address.geo.lng}</p>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h3>Company</h3>
+                        <p>${company}</p>
+                        <p><strong>BS:</strong> ${user.company.bs}</p>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h3>Website</h3>
+                        <p><a href="http://${user.website}" target="_blank">${user.website}</a></p>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h3>User ID</h3>
+                        <p>${user.id}</p>
+                    </div>
+                </div>
+            `;
+            
+            userContainer.style.display = 'block';
+            errorElement.style.display = 'none';
+        }
+        
+        function showError(message) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            userContainer.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

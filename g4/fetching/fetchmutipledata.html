@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <ul id="main"></ul>
+    <script>
+        fetch("https://jsonplaceholder.typicode.com/users")
+        .then((response) => response.json())
+        .then((users) => {
+           users.forEach((user)=>{
+                const main = document.getElementById("main")
+                const list = document.createElement("li")
+                list.innerHTML = `
+                    <h1>${user.name}</h1>
+                    <p>${user.address.street}</p>
+                `
+                main.appendChild(list)
+           })
+        }) 
+    </script>
+</body>
+</html>

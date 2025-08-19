@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Resources Fetcher</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        
+        .users-section, .posts-section {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: #3498db;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        .user-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .user-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .user-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .user-email {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .post-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .post-body {
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .post-author {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: #7f8c8d;
+            padding: 20px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 20px auto;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Multiple Resources Fetcher</h1>
+    
+    <button id="fetchData">Fetch Users and Posts</button>
+    
+    <div id="loading" class="loading" style="display: none;">Loading data...</div>
+    <div id="error" class="error" style="display: none;"></div>
+    
+    <div id="dataContainer" class="container" style="display: none;">
+        <div class="users-section">
+            <h2>Users (<span id="userCount">0</span>)</h2>
+            <div id="usersList"></div>
+        </div>
+        
+        <div class="posts-section">
+            <h2>Posts (<span id="postCount">0</span>)</h2>
+            <div id="postsList"></div>
+        </div>
+    </div>
+    
+    <script>
+        const fetchButton = document.getElementById('fetchData');
+        const loadingElement = document.getElementById('loading');
+        const errorElement = document.getElementById('error');
+        const dataContainer = document.getElementById('dataContainer');
+        const usersList = document.getElementById('usersList');
+        const postsList = document.getElementById('postsList');
+        const userCount = document.getElementById('userCount');
+        const postCount = document.getElementById('postCount');
+        
+        fetchButton.addEventListener('click', fetchAndDisplayData);
+        
+        fetchAndDisplayData();
+        
+        async function fetchMultipleResources() {
+            try {
+                loadingElement.style.display = 'block';
+                errorElement.style.display = 'none';
+                dataContainer.style.display = 'none';
+                
+                const [usersResponse, postsResponse] = await Promise.all([
+                    fetch('https://jsonplaceholder.typicode.com/users'),
+                    fetch('https://jsonplaceholder.typicode.com/posts')
+                ]);
+                
+                if (!usersResponse.ok || !postsResponse.ok) {
+                    const usersError = usersResponse.ok ? null : `Users: ${usersResponse.status}`;
+                    const postsError = postsResponse.ok ? null : `Posts: ${postsResponse.status}`;
+                    throw new Error([usersError, postsError].filter(Boolean).join(' | '));
+                }
+                
+                const users = await usersResponse.json();
+                const posts = await postsResponse.json();
+                
+                return { users, posts };
+            } catch (error) {
+                console.error('Error in parallel requests:', error);
+                throw error;
+            } finally {
+                loadingElement.style.display = 'none';
+            }
+        }
+        
+        async function fetchAndDisplayData() {
+            try {
+                const { users, posts } = await fetchMultipleResources();
+                displayData(users, posts);
+            } catch (error) {
+                showError(error.message || 'Failed to fetch data');
+            }
+        }
+        
+        function displayData(users, posts) {
+            userCount.textContent = users.length;
+            postCount.textContent = posts.length;
+            
+            usersList.innerHTML = '';
+            postsList.innerHTML = '';
+            
+            const usersMap = {};
+            users.forEach(user => {
+                usersMap[user.id] = user;
+            });
+            
+            users.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.className = 'user-card';
+                userElement.innerHTML = `
+                    <div class="user-name">${user.name}</div>
+                    <div class="user-email">${user.email}</div>
+                `;
+                usersList.appendChild(userElement);
+            });
+            
+            posts.slice(0, 20).forEach(post => {
+                const author = usersMap[post.userId]?.name || 'Unknown author';
+                
+                const postElement = document.createElement('div');
+                postElement.className = 'post-card';
+                postElement.innerHTML = `
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-body">${post.body}</div>
+                    <div class="post-author">Posted by: ${author}</div>
+                `;
+                postsList.appendChild(postElement);
+            });
+            
+            dataContainer.style.display = 'grid';
+            errorElement.style.display = 'none';
+        }
+        
+        function showError(message) {
+            errorElement.textContent = `Error: ${message}`;
+            errorElement.style.display = 'block';
+            dataContainer.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
