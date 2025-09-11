@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OMDB Search</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      *{
+        padding: 0;
+        box-sizing: border-box;
+        margin: 0;
+      }
+      #new{
+        background-color: beige;
+        padding: 89px;
+      }
+      #formContainer{
+        border-radius: 13px;
+        
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+      }
+      #text{
+        color: blue;
+        text-align: center;
+        font-size: 30px;
+      }
+      #pressbutton{
+        background-color: bisque;
+        color: blueviolet;
+        display:grid;
+        gap: 70px;
+      }              
+    </style>
+  </head>
+  <body>
+    <div id="new" class="" style="background-color: aqua;">
+      <form id="formContainer">
+        <input type="text" id="inputElement" placeholder="Enter movie name" />
+        <button id="pressbutton">Search</button>
+      </form>
+    </div>
+
+    <div id="output" class="d-flex flex-row">
+    </div>
+
+    <script>
+      const btn = document.getElementById("pressbutton");
+      const output = document.getElementById("output");
+      const apiKey = "21fb512e";
+
+      async function fetchMovies(movieName) {
+        const response = await fetch(
+          `https://www.omdbapi.com/?s=${movieName}&apikey=${apiKey}`
+        );
+
+        if (!response.ok) {
+          console.log("Error in fetching");
+          return;
+        }
+
+        const data = await response.json();
+        console.log(data);
+          output.innerHTML = "";
+
+        if (data.Response === "True") {
+          data.Search.forEach((movie) => {
+            output.innerHTML += `
+                <div class="card-body">
+                  <h1>${movie.Title}</h1>
+                  <img class="img-fluid" src="${movie.Poster} width="150px" height="150px" alt="${movie.Title}">
+                  <p>${movie.Year}</p>
+                  <p>${movie.imdbID}</p>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          output.innerHTML = `<p>No results found</p>`;
+        }
+      }
+
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const movieName = document.getElementById("inputElement").value.trim();
+        if (movieName) {
+          fetchMovies(movieName);
+        }
+      });
+    </script>
+  </body>
+</html>

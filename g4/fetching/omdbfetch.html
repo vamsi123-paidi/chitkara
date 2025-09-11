@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="movies-container"></div>
+    <script>
+      const apiKey = "21fb512e";
+
+      async function fetchMovies() {
+        try {
+          const response = await fetch(
+            `https://www.omdbapi.com/?s=Pathan&apikey=${apiKey}`
+          );
+          const data = await response.json();
+          console.log(data)
+
+          if (data.Response === "False") {
+            throw new Error(data.Error || "Failed to fetch movies");
+          }
+
+          const container = document.getElementById("movies-container");
+          container.innerHTML = "";
+
+          data.Search.slice(0, 10).forEach((movie) => {
+            const movieDiv = document.createElement("div");
+            movieDiv.className = "movie-card";
+            movieDiv.innerHTML = `
+          <h3>${movie.Title} (${movie.Year})</h3>
+          <img src="${movie.Poster}" alt="${movie.Title}" width="100">
+          <p>Type: ${movie.Type}</p>
+        `;
+            container.appendChild(movieDiv);
+          });
+        } catch (error) {
+          console.error("Error fetching movies:", error);
+          document.getElementById(
+            "movies-container"
+          ).innerHTML = `<p class="error">${error.message}</p>`;
+        }
+      }
+
+      fetchMovies();
+    </script>
+  </body>
+</html>

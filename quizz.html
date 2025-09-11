@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML CSS Bootstrap Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #00ffcc;
+    }
+    .groups {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+    .group {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      width: 120px;
+      box-shadow: 0 0 10px #00ffcc;
+    }
+    #question-box {
+      margin: 20px auto;
+      padding: 20px;
+      width: 70%;
+      background: #1e1e1e;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #ff6600;
+      display: none;
+    }
+    button {
+      background: #00ffcc;
+      border: none;
+      padding: 12px 20px;
+      margin: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #ff6600;
+      color: #fff;
+    }
+    .options {
+      text-align: left;
+      margin: 20px auto;
+      width: 60%;
+    }
+    .options label {
+      display: block;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+    <h1>HTML, CSS & Bootstrap Quiz</h1>
+
+  <div class="groups">
+    <div class="group" id="groupA">Group A<br>Score: <span>0</span></div>
+    <div class="group" id="groupB">Group B<br>Score: <span>0</span></div>
+    <div class="group" id="groupC">Group C<br>Score: <span>0</span></div>
+    <div class="group" id="groupD">Group D<br>Score: <span>0</span></div>
+    <div class="group" id="groupE">Group E<br>Score: <span>0</span></div>
+  </div>
+
+  <button id="generateBtn">Generate Question</button>
+
+  <div id="question-box">
+    <p id="question"></p>
+    <div class="options" id="options"></div>
+    <button id="submitBtn">Submit Answer</button>
+    <p id="status"></p>
+    <p id="currentGroupDisplay"></p>
+  </div>
+<script>
+  const questions = [
+    // ✅ HTML (12 questions)
+    { q: "What does HTML stand for?", options: ["HyperText Markup Language", "HighText Machine Language", "Hyper Transfer Markup Leveler", "Home Tool Markup Language"], answer: 0 },
+    { q: "Which tag is used to create a hyperlink in HTML?", options: ["&lt;a&gt;", "&lt;link&gt;", "&lt;href&gt;", "&lt;url&gt;"], answer: 0 },
+    { q: "Which tag is used for inserting an image?", options: ["&lt;img&gt;", "&lt;image&gt;", "&lt;src&gt;", "&lt;pic&gt;"], answer: 0 },
+    { q: "Which attribute is used to provide alternative text for an image?", options: ["alt", "src", "title", "longdesc"], answer: 0 },
+    { q: "What is the correct HTML element for inserting a line break?", options: ["&lt;break&gt;", "&lt;br&gt;", "&lt;lb&gt;", "&lt;newline&gt;"], answer: 1 },
+    { q: "Which tag is used for a numbered list?", options: ["&lt;ol&gt;", "&lt;ul&gt;", "&lt;li&gt;", "&lt;list&gt;"], answer: 0 },
+    { q: "What is the default alignment of &lt;p&gt; text?", options: ["Center", "Left", "Right", "Justify"], answer: 1 },
+    { q: "Which HTML element is used for the largest heading?", options: ["&lt;h6&gt;", "&lt;h1&gt;", "&lt;heading&gt;", "&lt;head&gt;"], answer: 1 },
+    { q: "Which tag is used to create a table row?", options: ["&lt;row&gt;", "&lt;tr&gt;", "&lt;td&gt;", "&lt;th&gt;"], answer: 1 },
+    { q: "Which tag creates a checkbox in HTML?", options: ["&lt;input type='checkbox'&gt;", "&lt;checkbox&gt;", "&lt;check&gt;", "&lt;cb&gt;"], answer: 0 },
+    { q: "Which tag creates a dropdown list?", options: ["&lt;dropdown&gt;", "&lt;list&gt;", "&lt;select&gt;", "&lt;option&gt;"], answer: 2 },
+    { q: "Which tag is used to define metadata in HTML?", options: ["&lt;meta&gt;", "&lt;head&gt;", "&lt;info&gt;", "&lt;data&gt;"], answer: 0 },
+
+    // ✅ CSS (13 questions)
+    { q: "What does CSS stand for?", options: ["Cascading Style Sheets", "Computer Style Sheets", "Creative Styling System", "Colorful Style Sheets"], answer: 0 },
+    { q: "Which property changes text color?", options: ["font-color", "text-color", "color", "font-style"], answer: 2 },
+    { q: "Which property changes background color?", options: ["background-color", "bgcolor", "color-background", "background-style"], answer: 0 },
+    { q: "Which property changes the font size?", options: ["font-size", "text-size", "size", "font-style"], answer: 0 },
+    { q: "How do you make text bold in CSS?", options: ["font-weight: bold;", "font-style: bold;", "text-weight: bold;", "text-style: bold;"], answer: 0 },
+    { q: "Which property is used for spacing inside an element?", options: ["margin", "padding", "border", "spacing"], answer: 1 },
+    { q: "Which property is used for spacing outside an element?", options: ["padding", "margin", "border-spacing", "spacing"], answer: 1 },
+    { q: "How do you make text italic in CSS?", options: ["font-weight: italic;", "font-style: italic;", "text-decoration: italic;", "style: italic;"], answer: 1 },
+    { q: "Which property adds shadow to text?", options: ["font-shadow", "text-shadow", "shadow-text", "text-style"], answer: 1 },
+    { q: "How do you select an element with id 'demo'?", options: ["#demo", ".demo", "demo", "*demo"], answer: 0 },
+    { q: "Which property controls the order of flex items?", options: ["z-index", "flex-order", "order", "align"], answer: 2 },
+    { q: "Which property makes a grid layout?", options: ["grid", "display: grid;", "layout: grid;", "grid-layout"], answer: 1 },
+    { q: "Which property is used for animation duration?", options: ["animation-time", "animation-duration", "duration", "transition-time"], answer: 1 },
+
+    // ✅ Bootstrap (5 questions)
+    { q: "Which Bootstrap class makes text bold?", options: [".text-bold", ".fw-bold", ".b-bold", ".strong"], answer: 1 },
+    { q: "Which class makes an image responsive?", options: [".img-responsive", ".img-fluid", ".image-fit", ".responsive-img"], answer: 1 },
+    { q: "Which class creates a button?", options: [".btn", ".button", ".btn-class", ".click"], answer: 0 },
+    { q: "Which class creates a container with fixed width?", options: [".container", ".container-fluid", ".box", ".fixed-container"], answer: 0 },
+    { q: "Which class makes text center aligned?", options: [".text-center", ".align-center", ".center-text", ".text-align"], answer: 0 },
+
+    // ✅ Advanced Mix (20 questions)
+    { q: "Which pseudo-class selects the first child?", options: [":first-child", ":first", "::child", ":nth-child(0)"], answer: 0 },
+    { q: "What does the z-index property do?", options: ["Sets the stack order", "Sets zoom level", "Sets line height", "Sets flex order"], answer: 0 },
+    { q: "Which tag is used for semantic navigation?", options: ["&lt;nav&gt;", "&lt;navigate&gt;", "&lt;navigation&gt;", "&lt;menu&gt;"], answer: 0 },
+    { q: "Which CSS function is used for gradients?", options: ["gradient()", "linear-gradient()", "color-gradient()", "bg-gradient()"], answer: 1 },
+    { q: "Which Bootstrap class makes text uppercase?", options: [".text-upper", ".uppercase", ".text-uppercase", ".caps"], answer: 2 },
+    { q: "Which HTML5 element is used for video playback?", options: ["&lt;media&gt;", "&lt;movie&gt;", "&lt;video&gt;", "&lt;play&gt;"], answer: 2 },
+    { q: "Which CSS property makes text overflow with ... ?", options: ["overflow: ellipsis;", "text-overflow: ellipsis;", "overflow: hidden;", "clip-text"], answer: 1 },
+    { q: "Which attribute is used to run JavaScript on button click?", options: ["onclick", "onpress", "action", "js"], answer: 0 },
+    { q: "Which Bootstrap class hides an element?", options: [".hide", ".d-none", ".invisible", ".none"], answer: 1 },
+    { q: "Which CSS unit is relative to the root element?", options: ["em", "rem", "px", "%"], answer: 1 },
+    { q: "Which HTML element defines a footer?", options: ["&lt;foot&gt;", "&lt;footer&gt;", "&lt;bottom&gt;", "&lt;section&gt;"], answer: 1 },
+    { q: "Which CSS property fixes an element at the top?", options: ["position: absolute;", "position: fixed;", "position: sticky;", "position: top;"], answer: 2 },
+    { q: "Which Bootstrap class creates a row?", options: [".row", ".col", ".grid-row", ".row-container"], answer: 0 },
+    { q: "Which CSS function is used for transformations?", options: ["transform()", "translate()", "matrix()", "transition()"], answer: 0 },
+    { q: "Which HTML tag is used for progress bars?", options: ["&lt;progress&gt;", "&lt;bar&gt;", "&lt;meter&gt;", "&lt;status&gt;"], answer: 0 },
+    { q: "Which property sets the grid row gap?", options: ["row-gap", "grid-gap-row", "gap-row", "row-spacing"], answer: 0 },
+    { q: "Which Bootstrap class creates a carousel?", options: [".carousel", ".slider", ".slideshow", ".carousel-container"], answer: 0 },
+    { q: "Which CSS property controls transparency?", options: ["opacity", "transparent", "visibility", "filter"], answer: 0 },
+    { q: "Which attribute specifies multiple options in select?", options: ["multi", "multiple", "many", "select-multiple"], answer: 1 },
+    { q: "Which Bootstrap class aligns items in flex?", options: [".justify-content", ".align-items", ".flex-align", ".flex-position"], answer: 1 }
+  ];
+
+  let currentGroup = 0; // 0=A,1=B...
+  let usedQuestions = [];
+  let currentAnswer = -1;
+
+  const groups = ["groupA","groupB","groupC","groupD","groupE"];
+
+  document.getElementById("generateBtn").addEventListener("click", generateQuestion);
+  document.getElementById("submitBtn").addEventListener("click", checkAnswer);
+
+  function generateQuestion() {
+    if (usedQuestions.length === questions.length) {
+      alert("All questions completed!");
+      return;
+    }
+    document.getElementById("status").textContent = "";
+    document.getElementById("question-box").style.display = "block";
+
+    let qIndex;
+    do {
+      qIndex = Math.floor(Math.random() * questions.length);
+    } while (usedQuestions.includes(qIndex));
+
+    usedQuestions.push(qIndex);
+
+    let qObj = questions[qIndex];
+    document.getElementById("question").textContent = qObj.q;
+
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+    qObj.options.forEach((opt, i) => {
+      let label = document.createElement("label");
+      label.innerHTML = `<input type="radio" name="option" value="${i}"> ${opt}`;
+      optionsDiv.appendChild(label);
+    });
+    currentAnswer = qObj.answer;
+
+    // show whose turn
+    document.getElementById("currentGroupDisplay").textContent =
+      "👉 Question for: " + groups[currentGroup].replace("group","Group ");
+  }
+
+  function checkAnswer() {
+    const selected = document.querySelector("input[name='option']:checked");
+    if (!selected) {
+      alert("Please select an answer!");
+      return;
+    }
+
+    let selectedValue = parseInt(selected.value);
+    if (selectedValue === currentAnswer) {
+      document.getElementById("status").textContent = "✅ Correct!";
+      let groupEl = document.getElementById(groups[currentGroup]);
+      let scoreSpan = groupEl.querySelector("span");
+      scoreSpan.textContent = parseInt(scoreSpan.textContent) + 10;
+    } else {
+      document.getElementById("status").textContent = "❌ Wrong!";
+    }
+
+    // ✅ Always move turn to next group after answering
+    currentGroup = (currentGroup + 1) % groups.length;
+
+    // update display for next question
+    document.getElementById("currentGroupDisplay").textContent =
+      "👉 Next question for: " + groups[currentGroup].replace("group","Group ");
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-httpscale=1.0">
+    <title>OMDB fetching</title>
+    <style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            background-color:grey;
+            align-items: center;
+            
+        }
+        h1{
+            font-family: Georgia, 'Times New Roman', Times, serif ;
+            color: blue;
+        }
+        h2{
+            font-family: Arial, Helvetica, sans-serif;
+            color: brown;
+        }
+        #Content{
+            border: 1px solid black;
+            max-width: 540px;
+            max-height: 500px;
+            align-items: center;
+            margin-left: 350px;
+        }
+        img{
+            max-width:300px ;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div id="Content">
+
+    </div>
+    <script>
+        const content = document.getElementById('Content');
+        async function fetchMovies(){
+            const response = await fetch("http://www.omdbapi.com/?i=tt3896198&apikey=21fb512e");
+            const data = await response.json();
+
+            console.log(data);
+            content.innerHTML=`
+            <img src= ${data.Poster}>
+            <h1>${data.Title}</h1>
+            <h2>${data.Genre}</h2>
+            <h2>${data.Director}</h2>
+            <h2>${data.Writer}</h2>
+            <h2>${data.Actors}</h2>
+            `
+        }
+
+
+        fetchMovies();
+    </script>
+</body>
+</html>

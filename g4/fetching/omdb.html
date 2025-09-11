@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+  </head>
+  <style>
+    * {
+      background-color: beige;
+    }
+    #form-container {
+      height: 100px;
+      background-color: blueviolet;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 2rem;
+    }
+    #search-input {
+      padding: 5px;
+    }
+    #submit-button {
+      padding: 5px;
+      border-radius: 15px;
+    }
+    #submit-button:hover {
+      color: white;
+      background-color: blue;
+    }
+  </style>
+  <body>
+    <div id="form-container">
+      <form>
+        <input type="text" id="search-input" />
+        <button id="submit-button">Search</button>
+      </form>
+    </div>
+
+    <div class="container">
+        <div id="moviesresults" class="row"></div>
+    </div>
+    <script>
+      const moviesresults = document.getElementById("moviesresults");
+      const btn = document.getElementById("submit-button");
+      const apiKey = "21fb512e";
+      async function getData(movieName) {
+        const response = await fetch(
+          `https://www.omdbapi.com/?s=${movieName}&apikey=${apiKey}`
+        );
+        const data = await response.json();
+        if (!response.ok) {
+          console.log(`Fetch error`);
+        }
+        console.log(data);
+        if (data.Response === "True") {
+          moviesresults.innerHTML = "";
+
+          data.Search.forEach((movie) => {
+            moviesresults.innerHTML += `
+                <div class="col-sm-12 col-md-4 col-lg-2">
+                <div class="card" style="width: 18rem">
+                    <img src="${movie.Poster}" class="card-img-top" alt="..." />
+                    <div class="card-body">
+                    <h5 class="card-title">${movie.Title}</h5>
+                    <p class="card-text">TYPE:${movie.Type}</p>
+                    <p class="card-text">YEAR:${movie.Year}</p>
+                    <p class="card-text">IMDBID:${movie.imdbID}</p>
+                    </div>
+                </div>
+                </div>
+                    `;
+          });
+        } else {
+          console.log("data is empty");
+        }
+      }
+      btn.addEventListener("click", (e) => {
+        const moviename = document.getElementById("search-input").value.trim();
+
+        e.preventDefault();
+        getData(moviename);
+      });
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
