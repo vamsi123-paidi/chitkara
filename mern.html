@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React Re-Renders Explained Visually | MERN Series by Vamsi Paidi</title>
+
+  <!-- Lottie player -->
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+  <style>
+    :root {
+      --bg1: #0b0c10;
+      --bg2: #101820;
+      --cyan: #00e7ff;
+      --teal: #00ffc6;
+      --text: #eaf6ff;
+      --muted: #b8c7d9;
+      --glass: rgba(255,255,255,0.06);
+      --stroke: rgba(255,255,255,0.12);
+      --shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 0 1px rgba(255,255,255,.15);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; height: 100%;
+      background: var(--bg1);
+      color: var(--text);
+      font: 500 18px/1.6 "Inter", system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .deck { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+    section.slide {
+      position: relative;
+      height: 100vh;
+      width: 100vw;
+      padding: 6vh 7vw;
+      scroll-snap-align: start;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(120deg, var(--bg1), var(--bg2));
+    }
+
+    section.slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(900px 400px at 20% 20%, rgba(0,231,255,.15), transparent 60%),
+                  radial-gradient(900px 400px at 80% 80%, rgba(154,107,255,.1), transparent 60%);
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 2;
+      width: min(100%, 1100px);
+      padding: 4vh 5vw;
+      border-radius: 22px;
+      background: var(--glass);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .content { flex: 1; }
+    h1.title {
+      font-size: clamp(26px, 4.6vw, 44px);
+      margin: 0 0 .5rem 0;
+    }
+    h2.subtitle {
+      font-size: clamp(20px, 2.4vw, 28px);
+      color: var(--muted);
+      font-weight: 600;
+      margin: 0;
+    }
+    ul { margin: 1rem 0 0 1.2rem; padding: 0; }
+    li { margin: .25rem 0; }
+
+    pre {
+      margin: 1rem 0 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.1);
+      font: 600 14px/1.5 ui-monospace, Menlo, Monaco, Consolas;
+      color: #adf4ff;
+      overflow: auto;
+    }
+
+    .brand {
+      margin-top: 1.1rem;
+      padding-top: .75rem;
+      border-top: 1px dashed rgba(255,255,255,.14);
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .brand .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 10px var(--teal);
+    }
+
+    .pulse { animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+    lottie-player { width: 260px; height: 260px; flex-shrink: 0; }
+    @media (max-width: 900px) { .card { flex-direction: column; text-align: center; } }
+  </style>
+</head>
+<body>
+  <main class="deck">
+
+    <!-- 1. Intro -->
+    <section class="slide">
+      <div class="card">
+        <div class="content">
+          <h1 class="title">⚛️ React Re-Renders Explained <span class="pulse">Visually</span></h1>
+          <h2 class="subtitle">The secret behind UI updates and performance — in simple visuals.</h2>
+          <div class="brand"><span class="dot"></span> 📚 MERN Series Guide by Vamsi Paidi</div>
+        </div>
+        <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_3rwasyjy.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
+    </section>
+
+    <!-- 2. Triggers -->
+    <section class="slide">
+      <div class="card">
+        <div class="content">
+          <h1 class="title">🔁 What Triggers a Re-Render?</h1>
+          <ul>
+            <li>1️⃣ <strong>State</strong> changes in the component</li>
+            <li>2️⃣ <strong>Props</strong> to the component change</li>
+            <li>3️⃣ <strong>Parent</strong> re-renders (child follows)</li>
+          </ul>
+          <div class="brand"><span class="dot"></span> 📚 MERN Series Guide by Vamsi Paidi</div>
+        </div>
+        <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_puciaact.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
+    </section>
+
+    <!-- 3. Example -->
+    <section class="slide">
+      <div class="card">
+        <div class="content">
+          <h1 class="title">💻 Every setState triggers a render</h1>
+          <pre>
+function App() {
+  const [count, setCount] = useState(0);
+  return (
+    <>
+      <Counter count={count} />
+      <button onClick={() => setCount(c => c + 1)}>+</button>
+    </>
+  );
+}
+          </pre>
+          <div class="brand"><span class="dot"></span> 📚 MERN Series Guide by Vamsi Paidi</div>
+        </div>
+        <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_1a8dx7zj.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
+    </section>
+
+    <!-- 4. Problem -->
+    <section class="slide">
+      <div class="card">
+        <div class="content">
+          <h1 class="title">⚠️ When Re-Renders Become a Problem</h1>
+          <ul>
+            <li>❌ Unrelated children re-render</li>
+            <li>❌ Expensive calculations repeat</li>
+            <li>❌ Lists re-paint without changes</li>
+          </ul>
+          <div class="brand"><span class="dot"></span> 📚 MERN Series Guide by Vamsi Paidi</div>
+        </div>
+        <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_qp1q7mct.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
+    </section>
+
+    <!-- 5. Fixes -->
+    <section class="slide">
+      <div class="card">
+        <div class="content">
+          <h1 class="title">🧰 How to Prevent Unnecessary Re-Renders</h1>
+          <ul>
+            <li>✅ <strong>React.memo()</strong> — Skip when props unchanged</li>
+            <li>✅ <strong>useMemo()</strong> — Cache heavy calculations</li>
+            <li>✅ <strong>useCallback()</strong> — Stable function identity</li>
+            <li>✅ Split large components</li>
+          </ul>
+          <div class="brand"><span class="dot"></span> 📚 MERN Series Guide by Vamsi Paidi</div>
+        </div>
+        <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_1pxqjqps.json" background="transparent" speed="1" loop autoplay></lottie-player>
+     </div>
+    </section>
+
+    <!-- 6. Before vs After -->
+    <section class="slide">
+      <div class="card">
+        <div class="content">
+          <h1 class="title">📈 Measure the Win — Not Just the Change</h1>
+          <ul>
+            <li>❌ Before: 12 renders ➝ low FPS</li>
+            <li>✅ After: 3 renders ➝ smooth UI</li>
+            <li>📏 Track: React Profiler, FPS meter, why-did-you-render</li>
+          </ul>
+          <div class="brand"><span class="dot"></span> 📚 MERN Series Guide by Vamsi Paidi</div>
+        </div>
+        <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_1a8dx7zj.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
+    </section>
+
+    <!-- 7. Key Takeaways -->
+    <section class="slide">
+      <div class="card">
+        <div class="content">
+          <h1 class="title">💡 Key Takeaways</h1>
+          <ul>
+            <li>🧠 Re-render ≠ bad</li>
+            <li>🚫 Unnecessary re-render = bad</li>
+            <li>🎯 Optimize hotspots, measure impact</li>
+          </ul>
+          <div class="brand"><span class="dot"></span> 📚 MERN Series Guide by Vamsi Paidi</div>
+        </div>
+        <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_1pxqjqps.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
+    </section>
+
+    <!-- 8. Outro -->
+    <section class="slide">
+      <div class="card">
+        <div class="content">
+          <h1 class="title">🚀 Stop Blaming React, Start Optimizing Smartly</h1>
+          <h2 class="subtitle">💬 Comment your favorite performance trick below.</h2>
+          <div class="brand"><span class="dot"></span> 📚 MERN Series Guide by Vamsi Paidi</div>
+        </div>
+        <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_3rwasyjy.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

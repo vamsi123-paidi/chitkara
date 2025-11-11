@@ -41,9 +41,15 @@
 
 // call method
 
-function sample(message,a,b){
-    console.log(`${this.name}  ${message} ${a} ${b}`)
+// function sample(message,a,b){
+//     console.log(`${this.name}  ${message} ${a} ${b}`)
+// }
+// let person = {name:"bob"}
+// const bindMethod = sample.bind(person)
+// bindMethod("hello","world","bind")
+"use strict"
+function add(a,a,a){
+    let o = a+a+a
+    console.log(o)
 }
-let person = {name:"bob"}
-const bindMethod = sample.bind(person)
-bindMethod("hello","world","bind")
+add(1,2,3)

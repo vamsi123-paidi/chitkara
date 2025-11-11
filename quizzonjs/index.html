@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Quiz Game</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #8A2BE2;
+      --primary-dark: #6A0DAD;
+      --primary-light: #9b5fe0;
+      --secondary: #FF6B8B;
+      --secondary-dark: #e44d6d;
+      --accent: #00D4AA;
+      --accent-dark: #00b894;
+      --success: #00E676;
+      --warning: #FFCA28;
+      --danger: #FF5252;
+      --dark: #121212;
+      --darker: #0A0A0A;
+      --light: #F5F5F7;
+      --gray: #8E8E93;
+      --card-bg: rgba(30, 30, 32, 0.8);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 15px 35px rgba(0, 0, 0, 0.4);
+      --radius: 16px;
+      --radius-lg: 24px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0A0A0A 0%, #1C1C1E 100%);
+      color: var(--light);
+      height: 100vh;
+      padding: 1rem;
+      line-height: 1.6;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Enhanced Background Elements */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: -1;
+      opacity: 0.5;
+    }
+
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+      top: -150px;
+      left: -150px;
+      animation: float 25s infinite ease-in-out;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--secondary) 0%, transparent 70%);
+      bottom: -200px;
+      right: -200px;
+      animation: float 30s infinite ease-in-out reverse;
+    }
+
+    .orb-3 {
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+      top: 50%;
+      left: 10%;
+      animation: float 20s infinite ease-in-out 2s;
+    }
+
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -1;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+      animation: gridMove 40s infinite linear;
+    }
+
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: particleFloat 15s infinite linear;
+    }
+
+    .particle:nth-child(3n+1) {
+      background: linear-gradient(45deg, var(--primary), var(--primary-light));
+    }
+
+    .particle:nth-child(3n+2) {
+      background: linear-gradient(45deg, var(--secondary), var(--secondary-dark));
+    }
+
+    .particle:nth-child(3n+3) {
+      background: linear-gradient(45deg, var(--accent), var(--accent-dark));
+    }
+
+    .connections {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .connection-line {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform-origin: left center;
+      animation: linePulse 8s infinite ease-in-out;
+    }
+
+    /* Background Animation Keyframes */
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
+      }
+      25% {
+        transform: translateY(-20px) rotate(5deg);
+      }
+      50% {
+        transform: translateY(0) rotate(0deg);
+      }
+      75% {
+        transform: translateY(20px) rotate(-5deg);
+      }
+    }
+
+    @keyframes gridMove {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 40px 40px;
+      }
+    }
+
+    @keyframes linePulse {
+      0%, 100% {
+        opacity: 0.2;
+        transform: scaleX(0.5);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scaleX(1);
+      }
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+      }
+    }
+
+    /* Main App Styling */
+    #container {
+      display: flex;
+      max-width: 1300px;
+      height: calc(100vh - 2rem);
+      margin: 0 auto;
+      gap: 2rem;
+    }
+
+    /* Left Panel Styling */
+    #leftPanel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.5rem;
+      border-radius: var(--radius-lg);
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      width: 380px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+    }
+
+    #leftPanel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, rgba(138, 43, 226, 0.1), rgba(255, 107, 139, 0.1));
+      z-index: -1;
+    }
+
+    #leftPanel > div:first-child h2 {
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      font-size: 1.8rem;
+      text-align: center;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      padding-bottom: 0.5rem;
+      position: relative;
+    }
+
+    #leftPanel > div:first-child h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 3px;
+    }
+
+    #groups {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      max-height: 40vh;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    #groups::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #groups::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    #groups::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+
+    .group-score {
+      background: var(--glass-bg);
+      padding: 1.1rem 1.5rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      backdrop-filter: blur(5px);
+    }
+
+    .group-score::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--primary), var(--secondary));
+      opacity: 0.7;
+      transition: var(--transition);
+    }
+
+    .group-score:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .group-score:hover::before {
+      opacity: 1;
+      width: 5px;
+    }
+
+    .group-score span {
+      background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+      color: white;
+      font-weight: 700;
+      font-size: 1.3rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 10px;
+      min-width: 42px;
+      text-align: center;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .group-score.highlight {
+      background: linear-gradient(145deg, var(--primary), var(--secondary));
+      color: white;
+      box-shadow: 0 8px 20px rgba(138, 43, 226, 0.4);
+      transform: scale(1.05);
+      z-index: 1;
+      animation: pulse 2s infinite;
+    }
+
+    .group-score.highlight span {
+      background: white;
+      color: var(--primary-dark);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Current group, timer and status container */
+    #leftPanel > div:last-child {
+      margin-top: 1.5rem;
+      text-align: center;
+      background: var(--glass-bg);
+      padding: 1.2rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(5px);
+    }
+
+    #currentGroupDisplay {
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin-bottom: 1.2rem;
+      color: var(--accent);
+      text-shadow: 0 0 15px rgba(0, 212, 170, 0.5);
+      letter-spacing: 0.5px;
+    }
+
+    #timer {
+      font-weight: 700;
+      font-size: 2.2rem;
+      color: var(--danger);
+      margin-bottom: 1.2rem;
+      font-feature-settings: "tnum";
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(255, 82, 82, 0.5);
+    }
+
+    #status {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--success);
+      min-height: 1.5em;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: rgba(0, 230, 118, 0.1);
+    }
+
+    /* Generate question button */
+    #generateBtn {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 1.2rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 14px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(138, 43, 226, 0.35);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    #generateBtn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    #generateBtn:hover {
+      box-shadow: 0 12px 25px rgba(138, 43, 226, 0.5);
+      transform: translateY(-4px);
+    }
+
+    #generateBtn:hover::before {
+      left: 100%;
+    }
+
+    #generateBtn:active {
+      transform: translateY(0);
+    }
+
+    #generateBtn:disabled {
+      background: linear-gradient(90deg, var(--gray), #5a5a5a);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    #generateBtn:disabled::before {
+      display: none;
+    }
+
+    /* Right panel styling */
+    #rightPanel {
+      flex: 1;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--glass-border);
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(10px);
+    }
+
+    #rightPanel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, rgba(255, 107, 139, 0.1), rgba(0, 212, 170, 0.1));
+      z-index: -1;
+    }
+
+    /* Question box */
+    #question-box {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    /* Question text */
+    #question {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+      padding: 1.5rem;
+      background: var(--glass-bg);
+      border-radius: var(--radius);
+      border-left: 4px solid var(--accent);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(5px);
+      animation: slideIn 0.6s ease-out;
+    }
+
+    /* Options list */
+    #options {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-right: 0.5rem;
+    }
+
+    #options::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #options::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    #options::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+
+    #options label {
+      background: var(--glass-bg);
+      padding: 1.2rem 1.5rem 1.2rem 3.5rem;
+      border-radius: var(--radius);
+      color: var(--light);
+      font-weight: 500;
+      font-size: 1.1rem;
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(5px);
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    #options label:nth-child(1) { animation-delay: 0.1s; }
+    #options label:nth-child(2) { animation-delay: 0.2s; }
+    #options label:nth-child(3) { animation-delay: 0.3s; }
+    #options label:nth-child(4) { animation-delay: 0.4s; }
+
+    #options label:hover {
+      background: linear-gradient(145deg, rgba(138, 43, 226, 0.15), rgba(255, 107, 139, 0.15));
+      transform: translateX(8px);
+      box-shadow: var(--shadow-md);
+    }
+
+    #options input[type="radio"] {
+      position: absolute;
+      left: 1.2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      accent-color: var(--accent);
+      transition: var(--transition);
+    }
+
+    #options input[type="radio"]:checked {
+      transform: translateY(-50%) scale(1.2);
+    }
+
+    /* Submit button */
+    #submitBtn {
+      margin-top: auto;
+      padding: 1.1rem 2.5rem;
+      font-weight: 600;
+      font-size: 1.2rem;
+      border-radius: 14px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+      color: var(--darker);
+      border: none;
+      cursor: pointer;
+      align-self: flex-start;
+      box-shadow: 0 8px 20px rgba(0, 212, 170, 0.35);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #submitBtn:hover {
+      box-shadow: 0 12px 25px rgba(0, 212, 170, 0.5);
+      transform: translateY(-4px);
+    }
+
+    #submitBtn:active {
+      transform: translateY(0);
+    }
+
+    /* Advanced Animations */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideIn {
+      0% {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(138, 43, 226, 0.6);
+      }
+      70% {
+        box-shadow: 0 0 0 15px rgba(138, 43, 226, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(138, 43, 226, 0);
+      }
+    }
+
+    @keyframes glow {
+      0% {
+        text-shadow: 0 0 5px rgba(0, 212, 170, 0.7);
+      }
+      50% {
+        text-shadow: 0 0 20px rgba(0, 212, 170, 0.9);
+      }
+      100% {
+        text-shadow: 0 0 5px rgba(0, 212, 170, 0.7);
+      }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    .glow {
+      animation: glow 2s infinite;
+    }
+
+    /* Responsive design */
+    @media (max-width: 1024px) {
+      #container {
+        flex-direction: column;
+        height: auto;
+        max-width: 700px;
+        overflow-y: auto;
+      }
+      
+      #leftPanel, #rightPanel {
+        width: 100%;
+      }
+      
+      #leftPanel {
+        order: 2;
+        max-height: 45vh;
+      }
+      
+      #rightPanel {
+        order: 1;
+        margin-bottom: 1.5rem;
+        min-height: 45vh;
+      }
+      
+      #groups {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-height: 25vh;
+      }
+      
+      .group-score {
+        flex: 1;
+        min-width: 140px;
+        max-width: 160px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 0.75rem;
+        overflow: auto;
+      }
+      
+      #container {
+        margin: 0 auto;
+        gap: 1rem;
+        height: auto;
+      }
+      
+      #leftPanel, #rightPanel {
+        padding: 1rem;
+      }
+      
+      #groups {
+        flex-direction: column;
+        max-height: none;
+      }
+      
+      .group-score {
+        max-width: 100%;
+      }
+      
+      #question {
+        font-size: 1.2rem;
+      }
+      
+      #options label {
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1rem;
+      }
+      
+      #submitBtn {
+        align-self: stretch;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Enhanced Background Elements -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="grid-overlay"></div>
+  <div class="connections" id="connections"></div>
+  <div class="particles" id="particles"></div>
+  
+  <div id="container">
+    <!-- Left panel: title, groups, timer, status -->
+    <aside id="leftPanel" aria-label="Group Info and Timer">
+      <div>
+        <h2>Javascript Quizz</h2>
+        <div id="groups">
+          <div id="groupA" class="group-score">Team Alpha: <span>0</span></div>
+          <div id="groupB" class="group-score">Team Beta: <span>0</span></div>
+          <div id="groupC" class="group-score">Team Gamma: <span>0</span></div>
+          <div id="groupD" class="group-score">Team Delta: <span>0</span></div>
+          <div id="groupE" class="group-score">Team Omega: <span>0</span></div>
+        </div>
+      </div>
+      <div>
+        <div id="currentGroupDisplay"></div>
+        <div id="timer"></div>
+        <div id="status"></div>
+        <button id="generateBtn"><i class="fas fa-brain"></i> Generate Question</button>
+      </div>
+    </aside>
+
+    <!-- Right panel: question and options -->
+    <section id="rightPanel" aria-label="Quiz Question and Options">
+      <div id="question-box">
+        <div id="question"></div>
+        <div id="options"></div>
+        <button id="submitBtn"><i class="fas fa-paper-plane"></i> Submit Answer</button>
+      </div>
+    </section>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    // Create enhanced background elements
+    document.addEventListener('DOMContentLoaded', function() {
+      const particlesContainer = document.getElementById('particles');
+      const connectionsContainer = document.getElementById('connections');
+      const particleCount = 30;
+      const connectionCount = 15;
+      
+      // Create particles
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Random properties for each particle
+        const size = Math.random() * 20 + 5;
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+        const delay = Math.random() * 15;
+        const duration = Math.random() * 10 + 15;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${posX}%`;
+        particle.style.top = `${posY}%`;
+        particle.style.animationDelay = `${delay}s`;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationName = 'particleFloat';
+        
+        particlesContainer.appendChild(particle);
+      }
+      
+      // Create connection lines
+      for (let i = 0; i < connectionCount; i++) {
+        const line = document.createElement('div');
+        line.classList.add('connection-line');
+        
+        // Random properties for each line
+        const width = Math.random() * 200 + 100;
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+        const rotation = Math.random() * 360;
+        const delay = Math.random() * 8;
+        
+        line.style.width = `${width}px`;
+        line.style.left = `${posX}%`;
+        line.style.top = `${posY}%`;
+        line.style.transform = `rotate(${rotation}deg)`;
+        line.style.animationDelay = `${delay}s`;
+        
+        connectionsContainer.appendChild(line);
+      }
+    });
+  </script>
+</body>
+</html>

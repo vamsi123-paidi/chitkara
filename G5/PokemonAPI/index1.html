@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="output"></div>
+    <script>
+        const id1 = document.getElementById("output");
+
+    
+        async function LoadAllPokemon(id){
+            const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+            const data = await res.json();
+            console.log(data);
+            output.innerHTML += `
+                <img src=${data.sprites.front_default}>
+                <p>${data.forms[0].name}</P>
+            `
+
+
+        }
+        async function searchid(){
+            for(let i=1;i<20;i++){
+                LoadAllPokemon(i);
+                
+                
+            }
+        }
+        searchid()
+
+         
+    </script>
+
+</body>
+</html>

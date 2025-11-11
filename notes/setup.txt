@@ -1,0 +1,331 @@
+🏁 1. Setup – From Scratch
+
+ 🔧 Install Node.js project
+
+bash
+mkdir graphql-demo
+cd graphql-demo
+npm init -y
+npm install apollo-server graphql
+
+
+ 📁 Project Structure
+
+
+graphql-demo/
+ ┣ schema.js
+ ┣ resolvers.js
+ ┣ index.js
+ ┗ package.json
+
+
+---
+
+ 🧱 2. GraphQL Schema
+
+Explain:
+
+> The Schema defines data types and what operations (queries, mutations, subscriptions) are available.
+
+ schema.js
+
+js
+const { gql } = require('apollo-server');
+
+const typeDefs = gql`
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+  }
+
+  type Query {
+    users: [User!]!
+    user(id: ID!): User
+  }
+
+  type Mutation {
+    addUser(name: String!, email: String!): User!
+  }
+
+  type Subscription {
+    userAdded: User!
+  }
+`;
+
+module.exports = typeDefs;
+
+
+---
+
+ 🧩 3. Resolvers
+
+Explain:
+
+> Resolvers define how GraphQL fetches or changes data.
+
+ resolvers.js
+
+js
+const { PubSub } = require('apollo-server');
+const pubsub = new PubSub();
+
+let users = [
+  { id: "1", name: "Vamsi", email: "vamsi@example.com" }
+];
+
+const resolvers = {
+  Query: {
+    users: () => users,
+    user: (_, { id }) => users.find(u => u.id === id),
+  },
+
+  Mutation: {
+    addUser: (_, { name, email }) => {
+      const newUser = { id: String(users.length + 1), name, email };
+      users.push(newUser);
+      pubsub.publish('USER_ADDED', { userAdded: newUser });
+      return newUser;
+    }
+  },
+
+  Subscription: {
+    userAdded: {
+      subscribe: () => pubsub.asyncIterator(['USER_ADDED']),
+    },
+  }
+};
+
+module.exports = resolvers;
+
+
+---
+
+ ⚙️ 4. Apollo Server Setup
+
+ index.js
+
+js
+const { ApolloServer } = require('apollo-server');
+const typeDefs = require('./schema');
+const resolvers = require('./resolvers');
+
+const server = new ApolloServer({ typeDefs, resolvers });
+
+server.listen().then(({ url }) => {
+  console.log(`🚀 Server ready at ${url}`);
+});
+
+
+ ▶️ Run:
+
+bash
+node index.js
+
+
+You’ll see:
+
+
+🚀 Server ready at http://localhost:4000/
+
+
+Then visit [http://localhost:4000](http://localhost:4000) — Apollo Sandbox opens.
+
+---
+
+ 🔍 5. Queries Example
+
+graphql
+query {
+  users {
+    id
+    name
+    email
+  }
+}
+
+
+---
+
+ ✍️ 6. Mutations Example
+
+graphql
+mutation {
+  addUser(name: "Kumar", email: "kumar@example.com") {
+    id
+    name
+  }
+}
+
+
+ 🧮 7. Validation
+
+Explain:
+
+> GraphQL checks if the requested fields exist in the schema before executing.
+
+Example Invalid Query:
+
+graphql
+query {
+  users {
+    fullName    ❌ This field doesn’t exist
+  }
+}
+
+
+Output:
+
+json
+{
+  "errors": [
+    { "message": "Cannot query field 'fullName' on type 'User'." }
+  ]
+}
+
+
+---
+
+ 🧰 9. Execution Flow
+
+You can draw or explain this flow:
+
+
+Client → Query → Validation → Execution (Resolvers) → JSON Response
+
+
+---
+
+ 🌍 10. Serving Over Internet
+
+To deploy your GraphQL server:
+
+ Option 1: Render (Free hosting)
+
+ Go to [https://render.com](https://render.com)
+ Connect your GitHub repo
+ Choose “Web Service”
+ Add `node index.js` as Start Command
+
+ Option 2: Vercel / Railway (similar steps)
+
+Then, your API will be available at a live URL like:
+
+
+https://graphql-demo.onrender.com/
+
+
+---
+
+ 📄 11. Pagination Example
+
+Add this to `schema.js`:
+
+graphql
+extend type Query {
+  paginatedUsers(page: Int!, limit: Int!): [User!]!
+}
+
+
+And in `resolvers.js`:
+
+js
+paginatedUsers: (_, { page, limit }) => {
+  const start = (page - 1)  limit;
+  return users.slice(start, start + limit);
+}
+
+
+Query:
+
+graphql
+query {
+  paginatedUsers(page: 1, limit: 2) {
+    id
+    name
+  }
+}
+
+
+---
+
+ 💻 12. Frontend Implementation (React Example)
+
+ Install Apollo Client
+
+bash
+npm install @apollo/client graphql
+
+
+ Example React Component
+
+jsx
+import React from "react";
+import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, gql } from "@apollo/client";
+
+const client = new ApolloClient({
+  uri: "http://localhost:4000",
+  cache: new InMemoryCache()
+});
+
+const GET_USERS = gql`
+  query {
+    users {
+      id
+      name
+      email
+    }
+  }
+`;
+
+function UsersList() {
+  const { loading, error, data } = useQuery(GET_USERS);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :(</p>;
+
+  return (
+    <ul>
+      {data.users.map(u => (
+        <li key={u.id}>{u.name} - {u.email}</li>
+      ))}
+    </ul>
+  );
+}
+
+export default function App() {
+  return (
+    <ApolloProvider client={client}>
+      <UsersList />
+    </ApolloProvider>
+  );
+}
+
+
+---
+
+ 🌐 13. Browser APIs (Fetch GraphQL without Apollo)
+
+Explain:
+
+> GraphQL uses HTTP POST under the hood. You can directly call it using `fetch`.
+
+Example:
+
+js
+fetch("http://localhost:4000", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    query: `
+      query {
+        users {
+          id
+          name
+        }
+      }
+    `
+  })
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
